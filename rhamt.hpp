@@ -17,10 +17,10 @@ class ReliableHAMT {
                 HashType subhash;
             public:
                 virtual ~Node() {};
-                virtual int insert(HashType, const T&, int depth) = 0;
-                virtual const T & cread(HashType, int depth) const = 0;
-                virtual T & read(HashType, int depth) const = 0;
-                virtual int remove(HashType, int depth) = 0;
+                virtual int insert(HashType, Key, const T&, int depth) = 0;
+                virtual const T & cread(HashType, Key, int depth) const = 0;
+                virtual T & read(HashType, Key, int depth) const = 0;
+                virtual int remove(HashType, Key, int depth) = 0;
         };
 
         class SplitNode : ReliableHAMT::Node {
@@ -29,28 +29,28 @@ class ReliableHAMT {
                 std::vector<Node *> children;
             public:
                 ~Node();
-                int insert(HashType, const T&, int depth) = 0;
-                const T & cread(HashType, int depth) const = 0;
-                T & read(HashType, int depth) const = 0;
-                int remove(HashType, int depth) = 0;
+                int insert(HashType, Key, const T&, int depth);
+                const T & cread(HashType, Key, int depth) const;
+                T & read(HashType, Key, int depth) const;
+                int remove(HashType, Key, int depth);
         };
 
         class LeafNode : ReliableHAMT::Node {
             private:
-                std::vector<std::pair<Key, T> > data;
+                std::vector<std::pair<Key, T>, Alloc > data;
             public:
                 ~Node();
-                int insert(HashType, const T&, int depth) = 0;
-                const T & cread(HashType, int depth) const = 0;
-                T & read(HashType, int depth) const = 0;
-                int remove(HashType, int depth) = 0;
+                int insert(HashType, Key, const T&, int depth);
+                const T & cread(HashType, Key, int depth) const;
+                T & read(HashType, Key, int depth) const;
+                int remove(HashType, Key, int depth);
         };
 
     public:
         int insert(Key, const T&);
         const T & cread(Key) const;
         T & read(Key) const;
-        int remove(Key, T);
+        int remove(Key);
 };
 
 template<   class Key,
@@ -62,9 +62,17 @@ template<   class Key,
         >
 int
 ResilientHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::insert(
-        HashType hash, const T&, int depth)
+        HashType hash, Key key, const T& t, int depth)
 {
-    for (auto const & it : 
+    for (auto const & it : data) {
+        if (Pred(it.first, key)) {
+            // TODO is it safe to assume copy constructor exists?
+            it.second = t;
+            return 1;
+        }
+    }
+    data.push_back(make_pair(key, t));
+    return 1;
 }
 
 #endif
