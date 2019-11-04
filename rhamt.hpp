@@ -6,9 +6,9 @@
 template<   class Key,
             class T,
             class HashType  = uint32_t,
-            class Hash = hash<Key>,
-            class Pred = equal_to<Key>,
-            class Alloc = allocator< pair<const Key, T> >
+            class Hash = std::hash<Key>,
+            class Pred = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
         >
 class ReliableHAMT {
     private:
@@ -28,7 +28,7 @@ class ReliableHAMT {
                 std::bitset<32> ptrmask;
                 std::vector<Node *> children;
             public:
-                ~Node();
+                ~SplitNode();
                 int insert(HashType, Key, const T&, int depth);
                 const T & cread(HashType, Key, int depth) const;
                 T & read(HashType, Key, int depth) const;
@@ -39,7 +39,7 @@ class ReliableHAMT {
             private:
                 std::vector<std::pair<Key, T>, Alloc > data;
             public:
-                ~Node();
+                ~LeafNode();
                 int insert(HashType, Key, const T&, int depth);
                 const T & cread(HashType, Key, int depth) const;
                 T & read(HashType, Key, int depth) const;
@@ -56,17 +56,16 @@ class ReliableHAMT {
 template<   class Key,
             class T,
             class HashType  = uint32_t,
-            class Hash = hash<Key>,
-            class Pred = equal_to<Key>,
-            class Alloc = allocator< pair<const Key, T> >
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ResilientHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::insert(
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::insert(
         HashType hash, Key key, const T& t, int depth)
 {
     for (auto const & it : data) {
         if (Pred(it.first, key)) {
-            // TODO is it safe to assume copy constructor exists?
             it.second = t;
             return 1;
         }
