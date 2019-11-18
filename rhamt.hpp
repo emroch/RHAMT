@@ -6,13 +6,6 @@
 #include <cstdint>
 #include <functional>
 
-// #define template_def template< class Key,                          /* type of key   */  \
-//                                class T,                            /* type of value */  \
-//                                class HashType  = uint32_t,         /* size of hash  */  \
-//                                class Hash = std::hash<Key>,        /* hash function */  \
-//                                class Pred = std::equal_to<Key>,    /*               */  \
-//                                class Alloc = std::allocator< std::pair<const Key, T> >  \
-//                               >
 
 template<   class Key,                          // type of key
             class T,                            // type of value
@@ -77,6 +70,7 @@ class ReliableHAMT {
                 T * read(HashType, Key, int depth);
                 const T * cread(HashType, Key, int depth);
                 int remove(HashType, Key, int depth, size_t *);
+                size_t getCount();
         };
 
         class LeafNode : public ReliableHAMT::Node {
@@ -104,6 +98,7 @@ class ReliableHAMT {
         T * read(Key);
         const T * cread(Key);
         int remove(Key);
+        size_t size();
 };
 
 /**** Leaf Node Implementation ****/
@@ -373,6 +368,21 @@ template<   class Key,
             class Pred  = std::equal_to<Key>,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
+size_t
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
+getCount()
+{
+    return count;
+}
+
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
 ~SplitNode()
 {
@@ -383,6 +393,8 @@ ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
     }
 }
 
+
+/**** ReliableHAMT Implementation ****/
 
 template<   class Key,
             class T,
@@ -445,6 +457,21 @@ remove(Key key)
 {
     HashType hash = hasher(key);
     return root.remove(hash, key, 0);
+}
+
+
+template<   class Key,
+            class T,
+            class HashType,
+            class Hash,
+            class Pred,
+            class Alloc
+        >
+size_t
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+size()
+{
+    return root.getCount();
 }
 
 #endif // RHAMT_HPP
