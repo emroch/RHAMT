@@ -1,6 +1,7 @@
 #ifndef RHAMT_HPP
 #define RHAMT_HPP
 #include <vector>
+#include <list>
 #include <bitset>
 #include <cstdint>
 #include <functional>
@@ -19,6 +20,9 @@ class ReliableHAMT {
                 HashType subhash;
             public:
                 virtual ~Node() {};
+                /*
+                 *  returns 1 if a new key is inserted, otherwise 0 for update
+                 */
                 virtual int insert(HashType, Key, const T&, int depth) = 0;
                 virtual const T * cread(HashType, Key, int depth) const = 0;
                 virtual T * read(HashType, Key, int depth) const = 0;
@@ -39,7 +43,7 @@ class ReliableHAMT {
 
         class LeafNode : ReliableHAMT::Node {
             private:
-                std::vector<std::pair<Key, T>, Alloc > data;
+                std::list<std::pair<Key, T>, Alloc > data;
             public:
                 ~LeafNode();
                 int insert(HashType, Key, const T&, int depth);
@@ -66,10 +70,10 @@ int
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::insert(
         HashType hash, Key key, const T& t, int depth)
 {
-    for (auto const & it : data) {
+    for (auto & it : data) {
         if (Pred(it.first, key)) {
             it.second = t;
-            return 1;
+            return 0;
         }
     }
     data.push_back(make_pair(key, t));
@@ -126,15 +130,12 @@ ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::remove(
 {
     (void)hash;
     (void)depth;
-    int rv = 0;
     for (auto & it : data) {
         if (Pred(it.first, key)) {
-            rv = 1;
-            data.
-            break;
+            data.remove(it);
+            return 1;
         }
     }
-    return rv;
+    return 0;
 }
-
 #endif
