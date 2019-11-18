@@ -68,10 +68,11 @@ class ReliableHAMT {
                 int remove(HashType, Key, int depth, size_t *);
         };
 
+        SplitNode root;
     public:
         int insert(Key, const T&);
-        const T & cread(Key) const;
-        T & read(Key) const;
+        const T * cread(Key) const;
+        T * read(Key) const;
         int remove(Key);
 };
 
@@ -267,5 +268,69 @@ remove(HashType hash, Key key, int depth, size_t *childcount)
     }
     *childcount = count;
     return rv;
+}
+
+
+template<   class Key,
+            class T,
+            class HashType,
+            class Hash,
+            class Pred,
+            class Alloc
+        >
+int
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+insert(Key key, const T& t)
+{
+    HashType hash = Hash(key);
+    return root.insert(hash, key, t, 0);
+}
+
+
+template<   class Key,
+            class T,
+            class HashType,
+            class Hash,
+            class Pred,
+            class Alloc
+        >
+T *
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+read(Key key) const
+{
+    HashType hash = Hash(key);
+    return root.read(hash, key, 0);
+}
+
+
+template<   class Key,
+            class T,
+            class HashType,
+            class Hash,
+            class Pred,
+            class Alloc
+        >
+const T *
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+cread(Key key) const
+{
+    HashType hash = Hash(key);
+    return root.cread(hash, key, 0);
+}
+
+
+template<   class Key,
+            class T,
+            class HashType,
+            class Hash,
+            class Pred,
+            class Alloc
+        >
+int
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+remove(Key key)
+{
+    HashType hash = Hash(key);
+    return root.remove(hash, key, 0);
 }
 #endif
