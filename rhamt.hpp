@@ -169,6 +169,19 @@ template<   class Key,
             class Pred  = std::equal_to<Key>,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
+~LeafNode()
+{
+}
+
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
 //typename ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::Node *
 int
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
@@ -268,6 +281,22 @@ remove(HashType hash, Key key, int depth, size_t *childcount)
     }
     *childcount = count;
     return rv;
+}
+
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
+~SplitNode()
+{
+    for (Node * child : children)
+        if (child)
+            delete child;
 }
 
 
