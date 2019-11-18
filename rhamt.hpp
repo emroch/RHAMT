@@ -333,8 +333,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-remove(HashType hash, Key key, int depth, size_t *childcount)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::remove(HashType hash, Key key, int depth, size_t *childcount)
 {
     /* Attempt to remove value. If child is not allocated, simply return 0 to
      * indicate no removal.
@@ -353,6 +353,7 @@ remove(HashType hash, Key key, int depth, size_t *childcount)
     if (0 == *childcount) {
         delete children[chldidx];
         children.erase(children.begin() + chldidx);
+        ptrmask.reset(chldidx);
     }
 
     /* Update childcount with current node's key count */

@@ -14,6 +14,7 @@ int main(void)
     assert(127 == val);
 
     for (int i = 200; i < 256; i++) {
+remove_loop:
         rhamt.remove(i);
     }
     assert(200 == rhamt.size());
@@ -22,7 +23,12 @@ int main(void)
     for (int i = 256; i < 512; i++) {
         rhamt.insert(i, i);
     }
-    assert(512 == rhamt.size());
+    assert(456 == rhamt.size());
+
+    for (int i = 0; i < 200; ++i)
+        assert(i == *rhamt.read(i));
+    for (int i = 256; i < 512; ++i)
+        assert(i == *rhamt.read(i));
 
 
     return 0;
