@@ -2,6 +2,8 @@
 #define RHAMT_HPP
 #include <vector>
 #include <bitset>
+#include <cstdint>
+#include <functional>
 
 template<   class Key,
             class T,
@@ -18,8 +20,8 @@ class ReliableHAMT {
             public:
                 virtual ~Node() {};
                 virtual int insert(HashType, Key, const T&, int depth) = 0;
-                virtual const T & cread(HashType, Key, int depth) const = 0;
-                virtual T & read(HashType, Key, int depth) const = 0;
+                virtual const T * cread(HashType, Key, int depth) const = 0;
+                virtual T * read(HashType, Key, int depth) const = 0;
                 virtual int remove(HashType, Key, int depth) = 0;
         };
 
@@ -30,8 +32,8 @@ class ReliableHAMT {
             public:
                 ~SplitNode();
                 int insert(HashType, Key, const T&, int depth);
-                const T & cread(HashType, Key, int depth) const;
-                T & read(HashType, Key, int depth) const;
+                const T * cread(HashType, Key, int depth) const;
+                T * read(HashType, Key, int depth) const;
                 int remove(HashType, Key, int depth);
         };
 
@@ -41,8 +43,8 @@ class ReliableHAMT {
             public:
                 ~LeafNode();
                 int insert(HashType, Key, const T&, int depth);
-                const T & cread(HashType, Key, int depth) const;
-                T & read(HashType, Key, int depth) const;
+                const T * cread(HashType, Key, int depth) const;
+                T * read(HashType, Key, int depth) const;
                 int remove(HashType, Key, int depth);
         };
 
@@ -72,6 +74,67 @@ ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::insert(
     }
     data.push_back(make_pair(key, t));
     return 1;
+}
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
+T *
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::read(
+        HashType hash, Key key, int depth) const
+{
+    (void)hash;
+    (void)depth;
+    for (auto const & it : data) {
+        if (Pred(it.first, key)) {
+            return &it.second;
+        }
+    }
+    return nullptr;
+}
+
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
+const T *
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::cread(
+        HashType hash, Key key, int depth) const
+{
+    return this->read(hash, key, depth);
+}
+
+
+template<   class Key,
+            class T,
+            class HashType  = uint32_t,
+            class Hash  = std::hash<Key>,
+            class Pred  = std::equal_to<Key>,
+            class Alloc = std::allocator< std::pair<const Key, T> >
+        >
+int
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::remove(
+        HashType hash, Key key, int depth)
+{
+    (void)hash;
+    (void)depth;
+    int rv = 0;
+    for (auto & it : data) {
+        if (Pred(it.first, key)) {
+            rv = 1;
+            data.
+            break;
+        }
+    }
+    return rv;
 }
 
 #endif
