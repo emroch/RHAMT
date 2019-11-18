@@ -456,7 +456,8 @@ ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
 remove(Key key)
 {
     HashType hash = hasher(key);
-    return root.remove(hash, key, 0);
+    size_t childcount;
+    return root.remove(hash, key, 0, &childcount);
 }
 
 

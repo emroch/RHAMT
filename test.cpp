@@ -13,10 +13,10 @@ int main(void)
     int val = *rhamt.read(127);
     assert(127 == val);
 
-    // for (int i = 200; i < 256; i++) {
-    //     rhamt.remove(i);
-    // }
-    // assert(200 == rhamt.size());
+    for (int i = 200; i < 256; i++) {
+        rhamt.remove(i);
+    }
+    assert(200 == rhamt.size());
 
     // 256-456 will be hash collisions with 0-200
     for (int i = 256; i < 512; i++) {
