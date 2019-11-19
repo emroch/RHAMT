@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <string>
 
+#define FAIL(msg)   printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg); return false;
+
 bool unit_test(bool (*f)(void), std::string name) {
     printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
             name.c_str());
@@ -41,12 +43,10 @@ bool test_random_sparse(void)
     for (auto it : golden) {
         const int *rv = rhamt.cread(it.first);
         if (nullptr == rv) {
-            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
-            return false;
+            FAIL("unexpected nullptr");
         }
         if (*rv != it.second) {
-            printf("ERROR: %s %d: unexpected values\n", __FILE__, __LINE__);
-            return false;
+            FAIL("unexpected values");
         }
         rhamt.remove(it.first);
     }
@@ -71,7 +71,7 @@ bool test_small_rhamt()
     }
     size_t size = rhamt.size();
     if (size != 256) {
-        printf("ERROR: size is %ld, expected %d\n", size, 256);
+        printf("ERROR: %s %d: size is %ld, expected %d\n", __FILE__, __LINE__, size, 256);
         return false;
     }
 
@@ -81,7 +81,7 @@ bool test_small_rhamt()
     }
     size = rhamt.size();
     if (size != 206) {
-        printf("ERROR: size is %ld, expected %d\n", size, 206);
+        printf("ERROR: %s %d: size is %ld, expected %d\n", __FILE__, __LINE__, size, 206);
         return false;
     }
 
@@ -92,14 +92,14 @@ bool test_small_rhamt()
     }
     size = rhamt.size();
     if (size != 462) {
-        printf("ERROR: size is %ld, expected %d\n", size, 462);
+        printf("ERROR: %s %d: size is %ld, expected %d\n", __FILE__, __LINE__, size, 462);
         return false;
     }
 
     for (int i = 50; i < 512; ++i) {
         int val = *rhamt.read(i);
         if (i != val) {
-            printf("ERROR: read %d, expected %d\n", val, i);
+            printf("ERROR: %s %d: read %d, expected %d\n", __FILE__, __LINE__, val, i);
             return false;
         }
     }
@@ -110,7 +110,6 @@ bool test_small_rhamt()
 bool test_overwrite()
 {
     ReliableHAMT<int, int, uint8_t> rhamt;
-    bool retval = false;
 
     for (int i = 0; i < 1024; ++i)
         rhamt.insert(i, i);
@@ -120,25 +119,22 @@ bool test_overwrite()
     for (int i = 0; i < 1024; ++i) {
         const int *rv = rhamt.cread(i);
         if (nullptr == rv) {
-            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
-            goto done;
+            FAIL("unexpected nullptr");
         }
         if ((i << 10) != *rv) {
             printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
                     __FILE__, __LINE__, i, i << 10, i, *rv);
+            return false;
         }
     }
 
-    retval = true;
-done:
-    return retval;
+    return true;
 }
 
 bool test_random_dense()
 {
     ReliableHAMT<int, int, uint8_t> rhamt;
     std::unordered_map<int, int> golden;
-    bool retval = false;
 
     for (int i = 0; i < 100000; ++i) {
         int k = rand();
@@ -150,95 +146,82 @@ bool test_random_dense()
     for (auto it : golden) {
         const int * rv = rhamt.cread(it.first);
         if (nullptr == rv) {
-            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
-            goto done;
+            FAIL("unexpected nullptr");
         }
         if (*rv != it.second) {
             printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
                     __FILE__, __LINE__, it.first, it.second, it.first, *rv);
-            goto done;
+            return false;
         }
     }
-    retval = true;
-done:
-    return retval;
+    return true;
 }
 
 bool test_string_key()
 {
     ReliableHAMT<std::string, int> hamt;
-    bool retval = false;
 
     hamt.insert("Yabadabadoo!", 5132);
     const int * rv = hamt.cread("Yabadabadoo!");
     if (nullptr == rv) {
-        printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("unexpected nullptr");
     }
     if (*rv != 5132) {
-        printf("ERROR: %s %d: mismatch key-value pair\n", __FILE__, __LINE__);
+        FAIL("mismatch key-value pair");
     }
-    retval = true;
-done:
-    return retval;
+
+    return true;
 }
 
 bool test_missing_read()
 {
     ReliableHAMT<int, int, uint8_t> hamt;
-    bool retval = false;
 
     hamt.insert(0, 0);
     const int * rv = hamt.read(256); // hash collision with key 0
     if (nullptr != rv) {
-        printf("ERROR: %s %d: expected nullptr\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("expected nullptr");
     }
 
     rv = hamt.read(1);
     if (nullptr != rv) {
-        printf("ERROR: %s %d: expected nullptr\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("expected nullptr");
     }
 
-    retval = true;
-done:
-    return retval;
+    rv = hamt.cread(2);
+    if (nullptr != rv) {
+        FAIL("expected nullptr");
+    }
+
+    return true;
 }
 
 bool test_missing_remove()
 {
     ReliableHAMT<int, int, uint8_t> hamt;
-    bool retval = false;
 
     hamt.insert(0, 0);
     int rv = hamt.remove(512);  // remove non-existant key from existing leaf
     if (0 != rv) {
-        printf("ERROR: %s %d: removed non-existant key\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("removed non-existant key");
     }
     if (1 != hamt.size()) {
-        printf("ERROR: %s %d: lost stored value\n", __FILE__, __LINE__);
+        FAIL("lost stored value")
     }
 
     rv = hamt.remove(1);  // remove key from non-existant node
     if (0 != rv) {
-        printf("ERROR: %s %d: removed non-existant key\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("removed non-existant key");
     }
     if (1 != hamt.size()) {
-        printf("ERROR: %s %d: lost stored value\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("lost stored value");
     }
 
     if (0 != *hamt.read(0)) {
-        printf("ERROR: %s %d: incorrect read value\n", __FILE__, __LINE__);
-        goto done;
+        FAIL("incorrect read value");
     }
 
-    retval = true;
-done:
-    return retval;
+    return true;
 }
 
 int main(void)

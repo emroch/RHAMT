@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 11:04:41</td>
+            <td class="headerValue">2019-11-19 16:08:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">12</td>
@@ -158,9 +158,9 @@
 <span class="lineNum">      96 </span>            :     {
 <a name="97"><span class="lineNum">      97 </span>            :       template&lt;typename _InputIterator, typename _ForwardIterator&gt;</a>
 <span class="lineNum">      98 </span>            :         static _ForwardIterator
-<span class="lineNum">      99 </span><span class="lineCov">    6337866 :         __uninit_copy(_InputIterator __first, _InputIterator __last,</span>
+<span class="lineNum">      99 </span><span class="lineCov">    6337362 :         __uninit_copy(_InputIterator __first, _InputIterator __last,</span>
 <span class="lineNum">     100 </span>            :                       _ForwardIterator __result)
-<span class="lineNum">     101 </span><span class="lineCov">    6337866 :         { return std::copy(__first, __last, __result); }</span>
+<span class="lineNum">     101 </span><span class="lineCov">    6337362 :         { return std::copy(__first, __last, __result); }</span>
 <span class="lineNum">     102 </span>            :     };
 <span class="lineNum">     103 </span>            : 
 <span class="lineNum">     104 </span>            :   /**
@@ -174,7 +174,7 @@
 <span class="lineNum">     112 </span>            :   */
 <a name="113"><span class="lineNum">     113 </span>            :   template&lt;typename _InputIterator, typename _ForwardIterator&gt;</a>
 <span class="lineNum">     114 </span>            :     inline _ForwardIterator
-<span class="lineNum">     115 </span><span class="lineCov">    6337866 :     uninitialized_copy(_InputIterator __first, _InputIterator __last,</span>
+<span class="lineNum">     115 </span><span class="lineCov">    6337362 :     uninitialized_copy(_InputIterator __first, _InputIterator __last,</span>
 <span class="lineNum">     116 </span>            :                        _ForwardIterator __result)
 <span class="lineNum">     117 </span>            :     {
 <span class="lineNum">     118 </span>            :       typedef typename iterator_traits&lt;_InputIterator&gt;::value_type
@@ -187,13 +187,13 @@
 <span class="lineNum">     125 </span>            :       // trivial types can have deleted assignment
 <span class="lineNum">     126 </span>            :       typedef typename iterator_traits&lt;_InputIterator&gt;::reference _RefType1;
 <span class="lineNum">     127 </span>            :       typedef typename iterator_traits&lt;_ForwardIterator&gt;::reference _RefType2;
-<span class="lineNum">     128 </span><span class="lineCov">    6337866 :       const bool __assignable = is_assignable&lt;_RefType2, _RefType1&gt;::value;</span>
+<span class="lineNum">     128 </span><span class="lineCov">    6337362 :       const bool __assignable = is_assignable&lt;_RefType2, _RefType1&gt;::value;</span>
 <span class="lineNum">     129 </span>            : #endif
 <span class="lineNum">     130 </span>            : 
 <span class="lineNum">     131 </span>            :       return std::__uninitialized_copy&lt;__is_trivial(_ValueType1)
 <span class="lineNum">     132 </span>            :                                        &amp;&amp; __is_trivial(_ValueType2)
 <span class="lineNum">     133 </span>            :                                        &amp;&amp; __assignable&gt;::
-<span class="lineNum">     134 </span><span class="lineCov">    6337866 :         __uninit_copy(__first, __last, __result);</span>
+<span class="lineNum">     134 </span><span class="lineCov">    6337362 :         __uninit_copy(__first, __last, __result);</span>
 <span class="lineNum">     135 </span>            :     }
 <span class="lineNum">     136 </span>            : 
 <span class="lineNum">     137 </span>            : 
@@ -346,9 +346,9 @@
 <span class="lineNum">     284 </span>            : 
 <a name="285"><span class="lineNum">     285 </span>            :   template&lt;typename _InputIterator, typename _ForwardIterator, typename _Tp&gt;</a>
 <span class="lineNum">     286 </span>            :     inline _ForwardIterator
-<span class="lineNum">     287 </span><span class="lineCov">    6337866 :     __uninitialized_copy_a(_InputIterator __first, _InputIterator __last,</span>
+<span class="lineNum">     287 </span><span class="lineCov">    6337362 :     __uninitialized_copy_a(_InputIterator __first, _InputIterator __last,</span>
 <span class="lineNum">     288 </span>            :                            _ForwardIterator __result, allocator&lt;_Tp&gt;&amp;)
-<span class="lineNum">     289 </span><span class="lineCov">    6337866 :     { return std::uninitialized_copy(__first, __last, __result); }</span>
+<span class="lineNum">     289 </span><span class="lineCov">    6337362 :     { return std::uninitialized_copy(__first, __last, __result); }</span>
 <span class="lineNum">     290 </span>            : 
 <span class="lineNum">     291 </span>            :   template&lt;typename _InputIterator, typename _ForwardIterator,
 <span class="lineNum">     292 </span>            :            typename _Allocator&gt;
@@ -364,14 +364,14 @@
 <span class="lineNum">     302 </span>            :   template&lt;typename _InputIterator, typename _ForwardIterator,
 <a name="303"><span class="lineNum">     303 </span>            :            typename _Allocator&gt;</a>
 <span class="lineNum">     304 </span>            :     inline _ForwardIterator
-<span class="lineNum">     305 </span><span class="lineCov">    6337866 :     __uninitialized_move_if_noexcept_a(_InputIterator __first,</span>
+<span class="lineNum">     305 </span><span class="lineCov">    6337362 :     __uninitialized_move_if_noexcept_a(_InputIterator __first,</span>
 <span class="lineNum">     306 </span>            :                                        _InputIterator __last,
 <span class="lineNum">     307 </span>            :                                        _ForwardIterator __result,
 <span class="lineNum">     308 </span>            :                                        _Allocator&amp; __alloc)
 <span class="lineNum">     309 </span>            :     {
 <span class="lineNum">     310 </span>            :       return std::__uninitialized_copy_a
-<span class="lineNum">     311 </span><span class="lineCov">    6337866 :         (_GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(__first),</span>
-<span class="lineNum">     312 </span><span class="lineCov">    6337866 :          _GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(__last), __result, __alloc);</span>
+<span class="lineNum">     311 </span><span class="lineCov">    6337362 :         (_GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(__first),</span>
+<span class="lineNum">     312 </span><span class="lineCov">    6337362 :          _GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(__last), __result, __alloc);</span>
 <span class="lineNum">     313 </span>            :     }
 <span class="lineNum">     314 </span>            : 
 <span class="lineNum">     315 </span>            :   template&lt;typename _ForwardIterator, typename _Tp, typename _Allocator&gt;

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 11:04:41</td>
+            <td class="headerValue">2019-11-19 16:08:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -191,18 +191,18 @@
 <span class="lineNum">     129 </span>            : 
 <a name="130"><span class="lineNum">     130 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;</a>
 <span class="lineNum">     131 </span>            :     typename basic_string&lt;_CharT, _Traits, _Alloc&gt;::pointer
-<span class="lineNum">     132 </span><span class="lineCov">          3 :     basic_string&lt;_CharT, _Traits, _Alloc&gt;::</span>
+<span class="lineNum">     132 </span><span class="lineCov">          5 :     basic_string&lt;_CharT, _Traits, _Alloc&gt;::</span>
 <span class="lineNum">     133 </span>            :     _M_create(size_type&amp; __capacity, size_type __old_capacity)
 <span class="lineNum">     134 </span>            :     {
 <span class="lineNum">     135 </span>            :       // _GLIBCXX_RESOLVE_LIB_DEFECTS
 <span class="lineNum">     136 </span>            :       // 83.  String::npos vs. string::max_size()
-<span class="lineNum">     137 </span><span class="lineCov">          3 :       if (__capacity &gt; max_size())</span>
+<span class="lineNum">     137 </span><span class="lineCov">          5 :       if (__capacity &gt; max_size())</span>
 <span class="lineNum">     138 </span><span class="lineNoCov">          0 :         std::__throw_length_error(__N(&quot;basic_string::_M_create&quot;));</span>
 <span class="lineNum">     139 </span>            : 
 <span class="lineNum">     140 </span>            :       // The below implements an exponential growth policy, necessary to
 <span class="lineNum">     141 </span>            :       // meet amortized linear time requirements of the library: see
 <span class="lineNum">     142 </span>            :       // http://gcc.gnu.org/ml/libstdc++/2001-07/msg00085.html.
-<span class="lineNum">     143 </span><span class="lineCov">          3 :       if (__capacity &gt; __old_capacity &amp;&amp; __capacity &lt; 2 * __old_capacity)</span>
+<span class="lineNum">     143 </span><span class="lineCov">          5 :       if (__capacity &gt; __old_capacity &amp;&amp; __capacity &lt; 2 * __old_capacity)</span>
 <span class="lineNum">     144 </span>            :         {
 <span class="lineNum">     145 </span><span class="lineNoCov">          0 :           __capacity = 2 * __old_capacity;</span>
 <span class="lineNum">     146 </span>            :           // Never allocate a string bigger than max_size.
@@ -212,7 +212,7 @@
 <span class="lineNum">     150 </span>            : 
 <span class="lineNum">     151 </span>            :       // NB: Need an array of char_type[__capacity], plus a terminating
 <span class="lineNum">     152 </span>            :       // null char_type() element.
-<span class="lineNum">     153 </span><span class="lineCov">          3 :       return _Alloc_traits::allocate(_M_get_allocator(), __capacity + 1);</span>
+<span class="lineNum">     153 </span><span class="lineCov">          5 :       return _Alloc_traits::allocate(_M_get_allocator(), __capacity + 1);</span>
 <span class="lineNum">     154 </span>            :     }
 <span class="lineNum">     155 </span>            : 
 <span class="lineNum">     156 </span>            :   // NB: This is the special case for Input Iterators, used in
@@ -265,34 +265,34 @@
 <span class="lineNum">     203 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;
 <a name="204"><span class="lineNum">     204 </span>            :     template&lt;typename _InIterator&gt;</a>
 <span class="lineNum">     205 </span>            :       void
-<span class="lineNum">     206 </span><span class="lineCov">         26 :       basic_string&lt;_CharT, _Traits, _Alloc&gt;::</span>
+<span class="lineNum">     206 </span><span class="lineCov">         28 :       basic_string&lt;_CharT, _Traits, _Alloc&gt;::</span>
 <span class="lineNum">     207 </span>            :       _M_construct(_InIterator __beg, _InIterator __end,
 <span class="lineNum">     208 </span>            :                    std::forward_iterator_tag)
 <span class="lineNum">     209 </span>            :       {
 <span class="lineNum">     210 </span>            :         // NB: Not required, but considered best practice.
-<span class="lineNum">     211 </span><span class="lineCov">         26 :         if (__gnu_cxx::__is_null_pointer(__beg) &amp;&amp; __beg != __end)</span>
+<span class="lineNum">     211 </span><span class="lineCov">         28 :         if (__gnu_cxx::__is_null_pointer(__beg) &amp;&amp; __beg != __end)</span>
 <span class="lineNum">     212 </span><span class="lineNoCov">          0 :           std::__throw_logic_error(__N(&quot;basic_string::&quot;</span>
 <span class="lineNum">     213 </span>            :                                        &quot;_M_construct null not valid&quot;));
 <span class="lineNum">     214 </span>            : 
-<span class="lineNum">     215 </span><span class="lineCov">         26 :         size_type __dnew = static_cast&lt;size_type&gt;(std::distance(__beg, __end));</span>
+<span class="lineNum">     215 </span><span class="lineCov">         28 :         size_type __dnew = static_cast&lt;size_type&gt;(std::distance(__beg, __end));</span>
 <span class="lineNum">     216 </span>            : 
-<span class="lineNum">     217 </span><span class="lineCov">         26 :         if (__dnew &gt; size_type(_S_local_capacity))</span>
+<span class="lineNum">     217 </span><span class="lineCov">         28 :         if (__dnew &gt; size_type(_S_local_capacity))</span>
 <span class="lineNum">     218 </span>            :           {
-<span class="lineNum">     219 </span><span class="lineCov">          3 :             _M_data(_M_create(__dnew, size_type(0)));</span>
-<span class="lineNum">     220 </span><span class="lineCov">          3 :             _M_capacity(__dnew);</span>
+<span class="lineNum">     219 </span><span class="lineCov">          5 :             _M_data(_M_create(__dnew, size_type(0)));</span>
+<span class="lineNum">     220 </span><span class="lineCov">          5 :             _M_capacity(__dnew);</span>
 <span class="lineNum">     221 </span>            :           }
 <span class="lineNum">     222 </span>            : 
 <span class="lineNum">     223 </span>            :         // Check for out_of_range and length_error exceptions.
 <span class="lineNum">     224 </span>            :         __try
-<span class="lineNum">     225 </span><span class="lineCov">         26 :           { this-&gt;_S_copy_chars(_M_data(), __beg, __end); }</span>
+<span class="lineNum">     225 </span><span class="lineCov">         28 :           { this-&gt;_S_copy_chars(_M_data(), __beg, __end); }</span>
 <span class="lineNum">     226 </span>            :         __catch(...)
 <span class="lineNum">     227 </span>            :           {
 <span class="lineNum">     228 </span>            :             _M_dispose();
 <span class="lineNum">     229 </span>            :             __throw_exception_again;
 <span class="lineNum">     230 </span>            :           }
 <span class="lineNum">     231 </span>            : 
-<span class="lineNum">     232 </span><span class="lineCov">         26 :         _M_set_length(__dnew);</span>
-<span class="lineNum">     233 </span><span class="lineCov">         26 :       }</span>
+<span class="lineNum">     232 </span><span class="lineCov">         28 :         _M_set_length(__dnew);</span>
+<span class="lineNum">     233 </span><span class="lineCov">         28 :       }</span>
 <span class="lineNum">     234 </span>            : 
 <span class="lineNum">     235 </span>            :   template&lt;typename _CharT, typename _Traits, typename _Alloc&gt;
 <span class="lineNum">     236 </span>            :     void
