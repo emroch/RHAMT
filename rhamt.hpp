@@ -78,7 +78,7 @@ class ReliableHAMT {
                 /* Key-value store for data (expected size == 1, list in case
                  * of hash collisions)
                  */
-                std::list<std::pair<Key, T>, Alloc > data;
+                std::list<std::pair<const Key, T>, Alloc > data;
             public:
                 ~LeafNode();
                 /* Implementations of Node virtual functions */
@@ -111,8 +111,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
-insert(HashType hash, Key key, const T& t, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+LeafNode::insert(HashType hash, Key key, const T& t, int depth)
 {
     /* Perform a linear search through collision list for a matching key.
     * If found, simply update the value and return, otherwise add the new
@@ -140,8 +140,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 T *
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
-read(HashType hash, Key key, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+LeafNode::read(HashType hash, Key key, int depth)
 {
     /* Read a key-value pair from the data list, returning a pointer to the
      * value or a null pointer if no matching key was found.
@@ -166,8 +166,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 const T *
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
-cread(HashType hash, Key key, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+LeafNode::cread(HashType hash, Key key, int depth)
 {
     return this->read(hash, key, depth);
 }
@@ -181,8 +181,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
-remove(HashType hash, Key key, int depth, size_t *childcount)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+LeafNode::remove(HashType hash, Key key, int depth, size_t *childcount)
 {
     /* Search for matching key-value pair, removing it if found. Update the
      * parent's `childcount` with the size of the data list.  Return 1 if
@@ -211,8 +211,8 @@ template<   class Key,
             class Pred  = std::equal_to<Key>,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::LeafNode::
-~LeafNode()
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+LeafNode::~LeafNode()
 {
 }
 
@@ -227,8 +227,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-getChild(const HashType hash, const int depth) const
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::getChild(const HashType hash, const int depth) const
 {
     /* Get the subhash for this level and check if the appropriate child bit
      * is set. If not, the child is not present, so return with error.
@@ -255,8 +255,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 int
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-insert(HashType hash, Key key, const T& t, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::insert(HashType hash, Key key, const T& t, int depth)
 {
     /* Avoid typing long gross template type multiple times */
     using RHAMT = ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>;
@@ -297,8 +297,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 T *
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-read(HashType hash, Key key, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::read(HashType hash, Key key, int depth)
 {
     /* Recursively read from the appropriate child, returning NULL if the
      * child doesn't exist.
@@ -318,8 +318,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 const T *
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-cread(HashType hash, Key key, int depth)
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::cread(HashType hash, Key key, int depth)
 {
     return read(hash, key, depth);
 }
@@ -370,8 +370,8 @@ template<   class Key,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
 size_t
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-getCount()
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::getCount()
 {
     return count;
 }
@@ -384,8 +384,8 @@ template<   class Key,
             class Pred  = std::equal_to<Key>,
             class Alloc = std::allocator< std::pair<const Key, T> >
         >
-ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::SplitNode::
-~SplitNode()
+ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
+SplitNode::~SplitNode()
 {
     for (Node * child : children) {
         if (child) {
