@@ -351,11 +351,12 @@ SplitNode::remove(HashType hash, Key key, int depth, size_t *childcount)
     count -= rv;
 
     /* check if childcount is zero and deallocate child if necessary */
-    // if (0 == *childcount) {
-    //     delete children[chldidx];
-    //     children.erase(children.begin() + chldidx);
-    //     ptrmask.reset(chldidx);
-    // }
+    if (0 == *childcount) {
+        delete children[chldidx];
+        children.erase(children.begin() + chldidx);
+        HashType shash = ReliableHAMT::subhash(hash, depth);
+        ptrmask.reset(shash);
+    }
 
     /* Update childcount with current node's key count */
     *childcount = count;
