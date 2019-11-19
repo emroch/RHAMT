@@ -3,16 +3,47 @@
 #include <iostream>
 #include <cstring>
 #include <cstdio>
+#include <unordered_map>
 
 bool unit_test(bool (*f)(void), std::string name) {
-    printf("Running %s...\n", name.c_str());
+    printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
+            name.c_str());
     bool passed = (*f)();
     if (!passed) {
-        printf("%s failed\n", name.c_str());
+        printf("\033[96;1;1m%s\033[0m \033[31;1;4mfailed\033[0m\n",
+                name.c_str());
         return false;
     }
-    printf("%s passed\n\n", name.c_str());
+    printf("\033[96;1;1m%s \033[32;1;4mpassed\033[0m\n", name.c_str());
     return true;
+}
+
+bool test_random_sparse(void)
+{
+    std::unordered_map<int, int> golden;
+    ReliableHAMT<int, int> rhamt;
+    int k, v;
+
+    for (int i = 0; i < 1000000; ++i) {
+        k = rand();
+        v = rand();
+        golden[k] = v;
+        rhamt.insert(k, v);
+    }
+
+    for (auto it : golden) {
+        const int *rv = rhamt.cread(it.first);
+        if (nullptr == rv) {
+            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
+            return false;
+        }
+        if (*rv != it.second) {
+            printf("ERROR: %s %d: unexpected values\n", __FILE__, __LINE__);
+        }
+    }
+
+    return true;
+
 }
 
 bool test_small_rhamt()
@@ -64,8 +95,10 @@ bool test_small_rhamt()
 int main(void)
 {
     printf("Beginning Testing...\n");
+    srand(0);
 
     unit_test(test_small_rhamt, "test_small_rhamt");
+    unit_test(test_random_sparse, "test_random_sparse");
 
 
     return 0;

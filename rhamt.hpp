@@ -277,7 +277,7 @@ SplitNode::insert(HashType hash, Key key, const T& t, int depth)
         else
             { newnode = new RHAMT::SplitNode(); }
         children.insert(children.begin() + chldidx, newnode);
-        ptrmask.set(chldidx);
+        ptrmask.set(shash);
     }
 
     /* Assuming child exists (or was created), recursively insert new value and
@@ -350,11 +350,11 @@ SplitNode::remove(HashType hash, Key key, int depth, size_t *childcount)
     count -= rv;
 
     /* check if childcount is zero and deallocate child if necessary */
-    if (0 == *childcount) {
-        delete children[chldidx];
-        children.erase(children.begin() + chldidx);
-        ptrmask.reset(chldidx);
-    }
+    // if (0 == *childcount) {
+    //     delete children[chldidx];
+    //     children.erase(children.begin() + chldidx);
+    //     ptrmask.reset(chldidx);
+    // }
 
     /* Update childcount with current node's key count */
     *childcount = count;
