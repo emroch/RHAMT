@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstdio>
 #include <unordered_map>
+#include <string>
 
 bool unit_test(bool (*f)(void), std::string name) {
     printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
@@ -24,7 +25,7 @@ bool test_random_sparse(void)
     ReliableHAMT<int, int> rhamt;
     int k, v;
 
-    for (int i = 0; i < 100000; ++i) {
+    for (int i = 0; i < 1000000; ++i) {
         k = rand();
         v = rand();
         golden[k] = v;
@@ -127,6 +128,56 @@ bool test_overwrite()
                     __FILE__, __LINE__, i, i << 10, i, *rv);
         }
     }
+
+    retval = true;
+done:
+    return retval;
+}
+
+bool test_random_dense()
+{
+    ReliableHAMT<int, int, uint8_t> rhamt;
+    std::unordered_map<int, int> golden;
+    bool retval = false;
+
+    for (int i = 0; i < 100000; ++i) {
+        int k = rand();
+        int v = rand();
+        golden[k] = v;
+        rhamt.insert(k, v);
+    }
+
+    for (auto it : golden) {
+        const int * rv = rhamt.cread(it.first);
+        if (nullptr == rv) {
+            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
+            goto done;
+        }
+        if (*rv != it.second) {
+            printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
+                    __FILE__, __LINE__, it.first, it.second, it.first, *rv);
+            goto done;
+        }
+    }
+    retval = true;
+done:
+    return retval;
+}
+
+bool test_string_key()
+{
+    ReliableHAMT<std::string, int> hamt;
+    bool retval = false;
+
+    hamt.insert("Yabadabadoo!", 5132);
+    const int * rv = hamt.cread("Yabadabadoo!");
+    if (nullptr == rv) {
+        printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
+        goto done;
+    }
+    if (*rv != 5132) {
+        printf("ERROR: %s %d: mismatch key-value pair\n", __FILE__, __LINE__);
+    }
     retval = true;
 done:
     return retval;
@@ -140,6 +191,8 @@ int main(void)
     unit_test(test_small_rhamt, "test_small_rhamt");
     unit_test(test_random_sparse, "test_random_sparse");
     unit_test(test_overwrite, "test_overwrite");
+    unit_test(test_random_dense, "test_random_dense");
+    unit_test(test_string_key, "test_string_key");
 
     printf("...Tests Complete\n");
 
