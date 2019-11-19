@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 08:57:34</td>
+            <td class="headerValue">2019-11-19 11:04:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">48</td>
@@ -161,9 +161,9 @@
 <span class="lineNum">      99 </span>            :   {
 <a name="100"><span class="lineNum">     100 </span>            :     template&lt;typename _Tp&gt;</a>
 <span class="lineNum">     101 </span>            :       auto
-<span class="lineNum">     102 </span><span class="lineCov">    4015947 :       operator()(_Tp&amp;&amp; __x) const</span>
+<span class="lineNum">     102 </span><span class="lineCov">    4017903 :       operator()(_Tp&amp;&amp; __x) const</span>
 <span class="lineNum">     103 </span>            :       -&gt; decltype(std::get&lt;0&gt;(std::forward&lt;_Tp&gt;(__x)))
-<span class="lineNum">     104 </span><span class="lineCov">    4015947 :       { return std::get&lt;0&gt;(std::forward&lt;_Tp&gt;(__x)); }</span>
+<span class="lineNum">     104 </span><span class="lineCov">    4017903 :       { return std::get&lt;0&gt;(std::forward&lt;_Tp&gt;(__x)); }</span>
 <span class="lineNum">     105 </span>            :   };
 <span class="lineNum">     106 </span>            : 
 <span class="lineNum">     107 </span>            :   template&lt;typename _NodeAlloc&gt;
@@ -292,7 +292,7 @@
 <span class="lineNum">     230 </span>            :   {
 <a name="231"><span class="lineNum">     231 </span>            :     _Hash_node_base* _M_nxt;</a>
 <span class="lineNum">     232 </span>            : 
-<span class="lineNum">     233 </span><span class="lineCov">    1099739 :     _Hash_node_base() noexcept : _M_nxt() { }</span>
+<span class="lineNum">     233 </span><span class="lineCov">    1099773 :     _Hash_node_base() noexcept : _M_nxt() { }</span>
 <span class="lineNum">     234 </span>            : 
 <span class="lineNum">     235 </span>            :     _Hash_node_base(_Hash_node_base* __next) noexcept : _M_nxt(__next) { }
 <span class="lineNum">     236 </span>            :   };
@@ -303,27 +303,27 @@
 <span class="lineNum">     241 </span>            :    *  Node type with the value to store.
 <a name="242"><span class="lineNum">     242 </span>            :    */</a>
 <span class="lineNum">     243 </span>            :   template&lt;typename _Value&gt;
-<span class="lineNum">     244 </span><span class="lineCov">    1099737 :     struct _Hash_node_value_base : _Hash_node_base</span>
+<span class="lineNum">     244 </span><span class="lineCov">    1099771 :     struct _Hash_node_value_base : _Hash_node_base</span>
 <span class="lineNum">     245 </span>            :     {
 <span class="lineNum">     246 </span>            :       typedef _Value value_type;
 <span class="lineNum">     247 </span>            : 
 <span class="lineNum">     248 </span>            :       __gnu_cxx::__aligned_buffer&lt;_Value&gt; _M_storage;
 <a name="249"><span class="lineNum">     249 </span>            : </a>
 <span class="lineNum">     250 </span>            :       _Value*
-<span class="lineNum">     251 </span><span class="lineCov">    5195833 :       _M_valptr() noexcept</span>
-<span class="lineNum">     252 </span><span class="lineCov">    5195833 :       { return _M_storage._M_ptr(); }</span>
+<span class="lineNum">     251 </span><span class="lineCov">    5197249 :       _M_valptr() noexcept</span>
+<span class="lineNum">     252 </span><span class="lineCov">    5197249 :       { return _M_storage._M_ptr(); }</span>
 <a name="253"><span class="lineNum">     253 </span>            : </a>
 <span class="lineNum">     254 </span>            :       const _Value*
-<span class="lineNum">     255 </span><span class="lineCov">    3219325 :       _M_valptr() const noexcept</span>
-<span class="lineNum">     256 </span><span class="lineCov">    3219325 :       { return _M_storage._M_ptr(); }</span>
+<span class="lineNum">     255 </span><span class="lineCov">    3219967 :       _M_valptr() const noexcept</span>
+<span class="lineNum">     256 </span><span class="lineCov">    3219967 :       { return _M_storage._M_ptr(); }</span>
 <a name="257"><span class="lineNum">     257 </span>            : </a>
 <span class="lineNum">     258 </span>            :       _Value&amp;
-<span class="lineNum">     259 </span><span class="lineCov">    1896622 :       _M_v() noexcept</span>
-<span class="lineNum">     260 </span><span class="lineCov">    1896622 :       { return *_M_valptr(); }</span>
+<span class="lineNum">     259 </span><span class="lineCov">    1897936 :       _M_v() noexcept</span>
+<span class="lineNum">     260 </span><span class="lineCov">    1897936 :       { return *_M_valptr(); }</span>
 <a name="261"><span class="lineNum">     261 </span>            : </a>
 <span class="lineNum">     262 </span>            :       const _Value&amp;
-<span class="lineNum">     263 </span><span class="lineCov">    3219325 :       _M_v() const noexcept</span>
-<span class="lineNum">     264 </span><span class="lineCov">    3219325 :       { return *_M_valptr(); }</span>
+<span class="lineNum">     263 </span><span class="lineCov">    3219967 :       _M_v() const noexcept</span>
+<span class="lineNum">     264 </span><span class="lineCov">    3219967 :       { return *_M_valptr(); }</span>
 <span class="lineNum">     265 </span>            :     };
 <span class="lineNum">     266 </span>            : 
 <span class="lineNum">     267 </span>            :   /**
@@ -353,11 +353,11 @@
 <span class="lineNum">     291 </span>            :    *  Base class is __detail::_Hash_node_value_base.
 <a name="292"><span class="lineNum">     292 </span>            :    */</a>
 <span class="lineNum">     293 </span>            :   template&lt;typename _Value&gt;
-<span class="lineNum">     294 </span><span class="lineCov">    1099737 :     struct _Hash_node&lt;_Value, false&gt; : _Hash_node_value_base&lt;_Value&gt;</span>
+<span class="lineNum">     294 </span><span class="lineCov">    1099771 :     struct _Hash_node&lt;_Value, false&gt; : _Hash_node_value_base&lt;_Value&gt;</span>
 <a name="295"><span class="lineNum">     295 </span>            :     {</a>
 <span class="lineNum">     296 </span>            :       _Hash_node*
-<span class="lineNum">     297 </span><span class="lineCov">    5654715 :       _M_next() const noexcept</span>
-<span class="lineNum">     298 </span><span class="lineCov">    5654715 :       { return static_cast&lt;_Hash_node*&gt;(this-&gt;_M_nxt); }</span>
+<span class="lineNum">     297 </span><span class="lineCov">    5656040 :       _M_next() const noexcept</span>
+<span class="lineNum">     298 </span><span class="lineCov">    5656040 :       { return static_cast&lt;_Hash_node*&gt;(this-&gt;_M_nxt); }</span>
 <span class="lineNum">     299 </span>            :     };
 <span class="lineNum">     300 </span>            : 
 <span class="lineNum">     301 </span>            :   /// Base class for node iterators.
@@ -368,12 +368,12 @@
 <span class="lineNum">     306 </span>            : 
 <a name="307"><span class="lineNum">     307 </span>            :       __node_type*  _M_cur;</a>
 <span class="lineNum">     308 </span>            : 
-<span class="lineNum">     309 </span><span class="lineCov">    1099741 :       _Node_iterator_base(__node_type* __p) noexcept</span>
-<span class="lineNum">     310 </span><span class="lineCov">    1099741 :       : _M_cur(__p) { }</span>
+<span class="lineNum">     309 </span><span class="lineCov">    1099775 :       _Node_iterator_base(__node_type* __p) noexcept</span>
+<span class="lineNum">     310 </span><span class="lineCov">    1099775 :       : _M_cur(__p) { }</span>
 <a name="311"><span class="lineNum">     311 </span>            : </a>
 <span class="lineNum">     312 </span>            :       void
-<span class="lineNum">     313 </span><span class="lineCov">    1099737 :       _M_incr() noexcept</span>
-<span class="lineNum">     314 </span><span class="lineCov">    1099737 :       { _M_cur = _M_cur-&gt;_M_next(); }</span>
+<span class="lineNum">     313 </span><span class="lineCov">    1099771 :       _M_incr() noexcept</span>
+<span class="lineNum">     314 </span><span class="lineCov">    1099771 :       { _M_cur = _M_cur-&gt;_M_next(); }</span>
 <span class="lineNum">     315 </span>            :     };
 <span class="lineNum">     316 </span>            : 
 <span class="lineNum">     317 </span>            :   template&lt;typename _Value, bool _Cache_hash_code&gt;
@@ -385,10 +385,10 @@
 <span class="lineNum">     323 </span>            : 
 <a name="324"><span class="lineNum">     324 </span>            :   template&lt;typename _Value, bool _Cache_hash_code&gt;</a>
 <span class="lineNum">     325 </span>            :     inline bool
-<span class="lineNum">     326 </span><span class="lineCov">    1099739 :     operator!=(const _Node_iterator_base&lt;_Value, _Cache_hash_code&gt;&amp; __x,</span>
+<span class="lineNum">     326 </span><span class="lineCov">    1099773 :     operator!=(const _Node_iterator_base&lt;_Value, _Cache_hash_code&gt;&amp; __x,</span>
 <span class="lineNum">     327 </span>            :                const _Node_iterator_base&lt;_Value, _Cache_hash_code&gt;&amp; __y)
 <span class="lineNum">     328 </span>            :     noexcept
-<span class="lineNum">     329 </span><span class="lineCov">    1099739 :     { return __x._M_cur != __y._M_cur; }</span>
+<span class="lineNum">     329 </span><span class="lineCov">    1099773 :     { return __x._M_cur != __y._M_cur; }</span>
 <span class="lineNum">     330 </span>            : 
 <span class="lineNum">     331 </span>            :   /// Node iterators, used to iterate through all the hashtable.
 <span class="lineNum">     332 </span>            :   template&lt;typename _Value, bool __constant_iterators, bool __cache&gt;
@@ -414,22 +414,22 @@
 <span class="lineNum">     352 </span>            :       : __base_type(0) { }
 <a name="353"><span class="lineNum">     353 </span>            : </a>
 <span class="lineNum">     354 </span>            :       explicit
-<span class="lineNum">     355 </span><span class="lineCov">    1099741 :       _Node_iterator(__node_type* __p) noexcept</span>
-<span class="lineNum">     356 </span><span class="lineCov">    1099741 :       : __base_type(__p) { }</span>
+<span class="lineNum">     355 </span><span class="lineCov">    1099775 :       _Node_iterator(__node_type* __p) noexcept</span>
+<span class="lineNum">     356 </span><span class="lineCov">    1099775 :       : __base_type(__p) { }</span>
 <a name="357"><span class="lineNum">     357 </span>            : </a>
 <span class="lineNum">     358 </span>            :       reference
-<span class="lineNum">     359 </span><span class="lineCov">    1099737 :       operator*() const noexcept</span>
-<span class="lineNum">     360 </span><span class="lineCov">    1099737 :       { return this-&gt;_M_cur-&gt;_M_v(); }</span>
+<span class="lineNum">     359 </span><span class="lineCov">    1099771 :       operator*() const noexcept</span>
+<span class="lineNum">     360 </span><span class="lineCov">    1099771 :       { return this-&gt;_M_cur-&gt;_M_v(); }</span>
 <a name="361"><span class="lineNum">     361 </span>            : </a>
 <span class="lineNum">     362 </span>            :       pointer
-<span class="lineNum">     363 </span><span class="lineCov">    1099737 :       operator-&gt;() const noexcept</span>
-<span class="lineNum">     364 </span><span class="lineCov">    1099737 :       { return this-&gt;_M_cur-&gt;_M_valptr(); }</span>
+<span class="lineNum">     363 </span><span class="lineCov">    1099771 :       operator-&gt;() const noexcept</span>
+<span class="lineNum">     364 </span><span class="lineCov">    1099771 :       { return this-&gt;_M_cur-&gt;_M_valptr(); }</span>
 <a name="365"><span class="lineNum">     365 </span>            : </a>
 <span class="lineNum">     366 </span>            :       _Node_iterator&amp;
-<span class="lineNum">     367 </span><span class="lineCov">    1099737 :       operator++() noexcept</span>
+<span class="lineNum">     367 </span><span class="lineCov">    1099771 :       operator++() noexcept</span>
 <span class="lineNum">     368 </span>            :       {
-<span class="lineNum">     369 </span><span class="lineCov">    1099737 :         this-&gt;_M_incr();</span>
-<span class="lineNum">     370 </span><span class="lineCov">    1099737 :         return *this;</span>
+<span class="lineNum">     369 </span><span class="lineCov">    1099771 :         this-&gt;_M_incr();</span>
+<span class="lineNum">     370 </span><span class="lineCov">    1099771 :         return *this;</span>
 <span class="lineNum">     371 </span>            :       }
 <span class="lineNum">     372 </span>            : 
 <span class="lineNum">     373 </span>            :       _Node_iterator
@@ -505,9 +505,9 @@
 <span class="lineNum">     443 </span>            :     typedef std::size_t result_type;
 <a name="444"><span class="lineNum">     444 </span>            : </a>
 <span class="lineNum">     445 </span>            :     result_type
-<span class="lineNum">     446 </span><span class="lineCov">    4319359 :     operator()(first_argument_type __num,</span>
+<span class="lineNum">     446 </span><span class="lineCov">    4320001 :     operator()(first_argument_type __num,</span>
 <span class="lineNum">     447 </span>            :                second_argument_type __den) const noexcept
-<span class="lineNum">     448 </span><span class="lineCov">    4319359 :     { return __num % __den; }</span>
+<span class="lineNum">     448 </span><span class="lineCov">    4320001 :     { return __num % __den; }</span>
 <span class="lineNum">     449 </span>            :   };
 <span class="lineNum">     450 </span>            : 
 <span class="lineNum">     451 </span>            :   /// Default ranged hash function H.  In principle it should be a
@@ -550,8 +550,8 @@
 <span class="lineNum">     488 </span>            :     typedef std::size_t _State;
 <a name="489"><span class="lineNum">     489 </span>            : </a>
 <span class="lineNum">     490 </span>            :     _State
-<span class="lineNum">     491 </span><span class="lineCov">    1099737 :     _M_state() const</span>
-<span class="lineNum">     492 </span><span class="lineCov">    1099737 :     { return _M_next_resize; }</span>
+<span class="lineNum">     491 </span><span class="lineCov">    1099771 :     _M_state() const</span>
+<span class="lineNum">     492 </span><span class="lineCov">    1099771 :     { return _M_next_resize; }</span>
 <span class="lineNum">     493 </span>            : 
 <span class="lineNum">     494 </span>            :     void
 <span class="lineNum">     495 </span>            :     _M_reset() noexcept
@@ -784,13 +784,13 @@
 <span class="lineNum">     722 </span>            : 
 <span class="lineNum">     723 </span><span class="lineCov">    1100000 :       if (!__p)</span>
 <span class="lineNum">     724 </span>            :         {
-<span class="lineNum">     725 </span><span class="lineCov">    1099737 :           __p = __h-&gt;_M_allocate_node(std::piecewise_construct,</span>
+<span class="lineNum">     725 </span><span class="lineCov">    1099771 :           __p = __h-&gt;_M_allocate_node(std::piecewise_construct,</span>
 <span class="lineNum">     726 </span>            :                                       std::tuple&lt;const key_type&amp;&gt;(__k),
 <span class="lineNum">     727 </span>            :                                       std::tuple&lt;&gt;());
-<span class="lineNum">     728 </span><span class="lineCov">    1099737 :           return __h-&gt;_M_insert_unique_node(__n, __code, __p)-&gt;second;</span>
+<span class="lineNum">     728 </span><span class="lineCov">    1099771 :           return __h-&gt;_M_insert_unique_node(__n, __code, __p)-&gt;second;</span>
 <span class="lineNum">     729 </span>            :         }
 <span class="lineNum">     730 </span>            : 
-<span class="lineNum">     731 </span><span class="lineCov">        263 :       return __p-&gt;_M_v().second;</span>
+<span class="lineNum">     731 </span><span class="lineCov">        229 :       return __p-&gt;_M_v().second;</span>
 <span class="lineNum">     732 </span>            :     }
 <span class="lineNum">     733 </span>            : 
 <span class="lineNum">     734 </span>            :   template&lt;typename _Key, typename _Pair, typename _Alloc, typename _Equal,
@@ -1154,12 +1154,12 @@
 <span class="lineNum">    1092 </span>            :         { }
 <a name="1093"><span class="lineNum">    1093 </span>            : </a>
 <span class="lineNum">    1094 </span>            :       static const _Tp&amp;
-<span class="lineNum">    1095 </span><span class="lineCov">   13451185 :       _S_cget(const _Hashtable_ebo_helper&amp; __eboh)</span>
-<span class="lineNum">    1096 </span><span class="lineCov">   13451185 :       { return static_cast&lt;const _Tp&amp;&gt;(__eboh); }</span>
+<span class="lineNum">    1095 </span><span class="lineCov">   13455739 :       _S_cget(const _Hashtable_ebo_helper&amp; __eboh)</span>
+<span class="lineNum">    1096 </span><span class="lineCov">   13455739 :       { return static_cast&lt;const _Tp&amp;&gt;(__eboh); }</span>
 <a name="1097"><span class="lineNum">    1097 </span>            : </a>
 <span class="lineNum">    1098 </span>            :       static _Tp&amp;
-<span class="lineNum">    1099 </span><span class="lineCov">    4399050 :       _S_get(_Hashtable_ebo_helper&amp; __eboh)</span>
-<span class="lineNum">    1100 </span><span class="lineCov">    4399050 :       { return static_cast&lt;_Tp&amp;&gt;(__eboh); }</span>
+<span class="lineNum">    1099 </span><span class="lineCov">    4399186 :       _S_get(_Hashtable_ebo_helper&amp; __eboh)</span>
+<span class="lineNum">    1100 </span><span class="lineCov">    4399186 :       { return static_cast&lt;_Tp&amp;&gt;(__eboh); }</span>
 <span class="lineNum">    1101 </span>            :     };
 <span class="lineNum">    1102 </span>            : 
 <span class="lineNum">    1103 </span>            :   /// Specialization not using EBO.
@@ -1346,15 +1346,15 @@
 <span class="lineNum">    1284 </span><span class="lineCov">    1100034 :       { return _M_h2()(__c, __n); }</span>
 <a name="1285"><span class="lineNum">    1285 </span>            : </a>
 <span class="lineNum">    1286 </span>            :       std::size_t
-<span class="lineNum">    1287 </span><span class="lineCov">    3219325 :       _M_bucket_index(const __node_type* __p, std::size_t __n) const</span>
+<span class="lineNum">    1287 </span><span class="lineCov">    3219967 :       _M_bucket_index(const __node_type* __p, std::size_t __n) const</span>
 <span class="lineNum">    1288 </span>            :         noexcept( noexcept(declval&lt;const _H1&amp;&gt;()(declval&lt;const _Key&amp;&gt;()))
 <span class="lineNum">    1289 </span>            :                   &amp;&amp; noexcept(declval&lt;const _H2&amp;&gt;()((__hash_code)0,
 <span class="lineNum">    1290 </span>            :                                                     (std::size_t)0)) )
-<span class="lineNum">    1291 </span><span class="lineCov">    3219325 :       { return _M_h2()(_M_h1()(_M_extract()(__p-&gt;_M_v())), __n); }</span>
+<span class="lineNum">    1291 </span><span class="lineCov">    3219967 :       { return _M_h2()(_M_h1()(_M_extract()(__p-&gt;_M_v())), __n); }</span>
 <a name="1292"><span class="lineNum">    1292 </span>            : </a>
 <span class="lineNum">    1293 </span>            :       void
-<span class="lineNum">    1294 </span><span class="lineCov">    1099737 :       _M_store_code(__node_type*, __hash_code) const</span>
-<span class="lineNum">    1295 </span><span class="lineCov">    1099737 :       { }</span>
+<span class="lineNum">    1294 </span><span class="lineCov">    1099771 :       _M_store_code(__node_type*, __hash_code) const</span>
+<span class="lineNum">    1295 </span><span class="lineCov">    1099771 :       { }</span>
 <span class="lineNum">    1296 </span>            : 
 <span class="lineNum">    1297 </span>            :       void
 <span class="lineNum">    1298 </span>            :       _M_copy_code(__node_type*, const __node_type*) const
@@ -1369,19 +1369,19 @@
 <span class="lineNum">    1307 </span>            :       }
 <a name="1308"><span class="lineNum">    1308 </span>            : </a>
 <span class="lineNum">    1309 </span>            :       const _ExtractKey&amp;
-<span class="lineNum">    1310 </span><span class="lineCov">    4015913 :       _M_extract() const { return __ebo_extract_key::_S_cget(*this); }</span>
+<span class="lineNum">    1310 </span><span class="lineCov">    4017869 :       _M_extract() const { return __ebo_extract_key::_S_cget(*this); }</span>
 <a name="1311"><span class="lineNum">    1311 </span>            : </a>
 <span class="lineNum">    1312 </span>            :       _ExtractKey&amp;
 <span class="lineNum">    1313 </span><span class="lineCov">         34 :       _M_extract() { return __ebo_extract_key::_S_get(*this); }</span>
 <a name="1314"><span class="lineNum">    1314 </span>            : </a>
 <span class="lineNum">    1315 </span>            :       const _H1&amp;
-<span class="lineNum">    1316 </span><span class="lineCov">    4319325 :       _M_h1() const { return __ebo_h1::_S_cget(*this); }</span>
+<span class="lineNum">    1316 </span><span class="lineCov">    4319967 :       _M_h1() const { return __ebo_h1::_S_cget(*this); }</span>
 <span class="lineNum">    1317 </span>            : 
 <span class="lineNum">    1318 </span>            :       _H1&amp;
 <span class="lineNum">    1319 </span>            :       _M_h1() { return __ebo_h1::_S_get(*this); }
 <a name="1320"><span class="lineNum">    1320 </span>            : </a>
 <span class="lineNum">    1321 </span>            :       const _H2&amp;
-<span class="lineNum">    1322 </span><span class="lineCov">    4319359 :       _M_h2() const { return __ebo_h2::_S_cget(*this); }</span>
+<span class="lineNum">    1322 </span><span class="lineCov">    4320001 :       _M_h2() const { return __ebo_h2::_S_cget(*this); }</span>
 <span class="lineNum">    1323 </span>            : 
 <span class="lineNum">    1324 </span>            :       _H2&amp;
 <span class="lineNum">    1325 </span>            :       _M_h2() { return __ebo_h2::_S_get(*this); }
@@ -1501,9 +1501,9 @@
 <span class="lineNum">    1439 </span>            :   struct _Equal_helper&lt;_Key, _Value, _ExtractKey, _Equal, _HashCodeType, false&gt;
 <a name="1440"><span class="lineNum">    1440 </span>            :   {</a>
 <span class="lineNum">    1441 </span>            :     static bool
-<span class="lineNum">    1442 </span><span class="lineCov">     796588 :     _S_equals(const _Equal&amp; __eq, const _ExtractKey&amp; __extract,</span>
+<span class="lineNum">    1442 </span><span class="lineCov">     797902 :     _S_equals(const _Equal&amp; __eq, const _ExtractKey&amp; __extract,</span>
 <span class="lineNum">    1443 </span>            :               const _Key&amp; __k, _HashCodeType, _Hash_node&lt;_Value, false&gt;* __n)
-<span class="lineNum">    1444 </span><span class="lineCov">     796588 :     { return __eq(__k, __extract(__n-&gt;_M_v())); }</span>
+<span class="lineNum">    1444 </span><span class="lineCov">     797902 :     { return __eq(__k, __extract(__n-&gt;_M_v())); }</span>
 <span class="lineNum">    1445 </span>            :   };
 <span class="lineNum">    1446 </span>            : 
 <span class="lineNum">    1447 </span>            : 
@@ -1871,10 +1871,10 @@
 <span class="lineNum">    1809 </span>            :     { }
 <a name="1810"><span class="lineNum">    1810 </span>            : </a>
 <span class="lineNum">    1811 </span>            :     bool
-<span class="lineNum">    1812 </span><span class="lineCov">     796588 :     _M_equals(const _Key&amp; __k, __hash_code __c, __node_type* __n) const</span>
+<span class="lineNum">    1812 </span><span class="lineCov">     797902 :     _M_equals(const _Key&amp; __k, __hash_code __c, __node_type* __n) const</span>
 <span class="lineNum">    1813 </span>            :     {
-<span class="lineNum">    1814 </span><span class="lineCov">     796588 :       return _EqualHelper::_S_equals(_M_eq(), this-&gt;_M_extract(),</span>
-<span class="lineNum">    1815 </span><span class="lineCov">     796588 :                                      __k, __c, __n);</span>
+<span class="lineNum">    1814 </span><span class="lineCov">     797902 :       return _EqualHelper::_S_equals(_M_eq(), this-&gt;_M_extract(),</span>
+<span class="lineNum">    1815 </span><span class="lineCov">     797902 :                                      __k, __c, __n);</span>
 <span class="lineNum">    1816 </span>            :     }
 <span class="lineNum">    1817 </span>            : 
 <span class="lineNum">    1818 </span>            :     void
@@ -1885,7 +1885,7 @@
 <span class="lineNum">    1823 </span>            :     }
 <a name="1824"><span class="lineNum">    1824 </span>            : </a>
 <span class="lineNum">    1825 </span>            :     const _Equal&amp;
-<span class="lineNum">    1826 </span><span class="lineCov">     796588 :     _M_eq() const { return _EqualEBO::_S_cget(*this); }</span>
+<span class="lineNum">    1826 </span><span class="lineCov">     797902 :     _M_eq() const { return _EqualEBO::_S_cget(*this); }</span>
 <span class="lineNum">    1827 </span>            : 
 <span class="lineNum">    1828 </span>            :     _Equal&amp;
 <span class="lineNum">    1829 </span>            :     _M_eq() { return _EqualEBO::_S_get(*this); }
@@ -2087,8 +2087,8 @@
 <span class="lineNum">    2025 </span>            :         { }
 <a name="2026"><span class="lineNum">    2026 </span>            : </a>
 <span class="lineNum">    2027 </span>            :       __node_alloc_type&amp;
-<span class="lineNum">    2028 </span><span class="lineCov">    4399016 :       _M_node_allocator()</span>
-<span class="lineNum">    2029 </span><span class="lineCov">    4399016 :       { return __ebo_node_alloc::_S_get(*this); }</span>
+<span class="lineNum">    2028 </span><span class="lineCov">    4399152 :       _M_node_allocator()</span>
+<span class="lineNum">    2029 </span><span class="lineCov">    4399152 :       { return __ebo_node_alloc::_S_get(*this); }</span>
 <span class="lineNum">    2030 </span>            : 
 <span class="lineNum">    2031 </span>            :       const __node_alloc_type&amp;
 <span class="lineNum">    2032 </span>            :       _M_node_allocator() const
@@ -2117,17 +2117,17 @@
 <span class="lineNum">    2055 </span>            :   template&lt;typename _NodeAlloc&gt;
 <a name="2056"><span class="lineNum">    2056 </span>            :     template&lt;typename... _Args&gt;</a>
 <span class="lineNum">    2057 </span>            :       typename _Hashtable_alloc&lt;_NodeAlloc&gt;::__node_type*
-<span class="lineNum">    2058 </span><span class="lineCov">    1099737 :       _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_allocate_node(_Args&amp;&amp;... __args)</span>
+<span class="lineNum">    2058 </span><span class="lineCov">    1099771 :       _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_allocate_node(_Args&amp;&amp;... __args)</span>
 <span class="lineNum">    2059 </span>            :       {
-<span class="lineNum">    2060 </span><span class="lineCov">    1099737 :         auto __nptr = __node_alloc_traits::allocate(_M_node_allocator(), 1);</span>
-<span class="lineNum">    2061 </span><span class="lineCov">    1099737 :         __node_type* __n = std::__addressof(*__nptr);</span>
+<span class="lineNum">    2060 </span><span class="lineCov">    1099771 :         auto __nptr = __node_alloc_traits::allocate(_M_node_allocator(), 1);</span>
+<span class="lineNum">    2061 </span><span class="lineCov">    1099771 :         __node_type* __n = std::__addressof(*__nptr);</span>
 <span class="lineNum">    2062 </span>            :         __try
 <span class="lineNum">    2063 </span>            :           {
-<span class="lineNum">    2064 </span><span class="lineCov">    2199474 :             __value_alloc_type __a(_M_node_allocator());</span>
-<span class="lineNum">    2065 </span><span class="lineCov">    1099737 :             ::new ((void*)__n) __node_type;</span>
-<span class="lineNum">    2066 </span><span class="lineCov">    1099737 :             __value_alloc_traits::construct(__a, __n-&gt;_M_valptr(),</span>
+<span class="lineNum">    2064 </span><span class="lineCov">    2199542 :             __value_alloc_type __a(_M_node_allocator());</span>
+<span class="lineNum">    2065 </span><span class="lineCov">    1099771 :             ::new ((void*)__n) __node_type;</span>
+<span class="lineNum">    2066 </span><span class="lineCov">    1099771 :             __value_alloc_traits::construct(__a, __n-&gt;_M_valptr(),</span>
 <span class="lineNum">    2067 </span>            :                                             std::forward&lt;_Args&gt;(__args)...);
-<span class="lineNum">    2068 </span><span class="lineCov">    2199474 :             return __n;</span>
+<span class="lineNum">    2068 </span><span class="lineCov">    2199542 :             return __n;</span>
 <span class="lineNum">    2069 </span>            :           }
 <span class="lineNum">    2070 </span><span class="lineNoCov">          0 :         __catch(...)</span>
 <span class="lineNum">    2071 </span>            :           {
@@ -2138,25 +2138,25 @@
 <span class="lineNum">    2076 </span>            : 
 <a name="2077"><span class="lineNum">    2077 </span>            :   template&lt;typename _NodeAlloc&gt;</a>
 <span class="lineNum">    2078 </span>            :     void
-<span class="lineNum">    2079 </span><span class="lineCov">    1099737 :     _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_deallocate_node(__node_type* __n)</span>
+<span class="lineNum">    2079 </span><span class="lineCov">    1099771 :     _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_deallocate_node(__node_type* __n)</span>
 <span class="lineNum">    2080 </span>            :     {
 <span class="lineNum">    2081 </span>            :       typedef typename __node_alloc_traits::pointer _Ptr;
-<span class="lineNum">    2082 </span><span class="lineCov">    1099737 :       auto __ptr = std::pointer_traits&lt;_Ptr&gt;::pointer_to(*__n);</span>
-<span class="lineNum">    2083 </span><span class="lineCov">    2199474 :       __value_alloc_type __a(_M_node_allocator());</span>
-<span class="lineNum">    2084 </span><span class="lineCov">    1099737 :       __value_alloc_traits::destroy(__a, __n-&gt;_M_valptr());</span>
+<span class="lineNum">    2082 </span><span class="lineCov">    1099771 :       auto __ptr = std::pointer_traits&lt;_Ptr&gt;::pointer_to(*__n);</span>
+<span class="lineNum">    2083 </span><span class="lineCov">    2199542 :       __value_alloc_type __a(_M_node_allocator());</span>
+<span class="lineNum">    2084 </span><span class="lineCov">    1099771 :       __value_alloc_traits::destroy(__a, __n-&gt;_M_valptr());</span>
 <span class="lineNum">    2085 </span>            :       __n-&gt;~__node_type();
-<span class="lineNum">    2086 </span><span class="lineCov">    1099737 :       __node_alloc_traits::deallocate(_M_node_allocator(), __ptr, 1);</span>
-<span class="lineNum">    2087 </span><span class="lineCov">    1099737 :     }</span>
+<span class="lineNum">    2086 </span><span class="lineCov">    1099771 :       __node_alloc_traits::deallocate(_M_node_allocator(), __ptr, 1);</span>
+<span class="lineNum">    2087 </span><span class="lineCov">    1099771 :     }</span>
 <span class="lineNum">    2088 </span>            : 
 <a name="2089"><span class="lineNum">    2089 </span>            :   template&lt;typename _NodeAlloc&gt;</a>
 <span class="lineNum">    2090 </span>            :     void
-<span class="lineNum">    2091 </span><span class="lineCov">    1099739 :     _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_deallocate_nodes(__node_type* __n)</span>
+<span class="lineNum">    2091 </span><span class="lineCov">    1099773 :     _Hashtable_alloc&lt;_NodeAlloc&gt;::_M_deallocate_nodes(__node_type* __n)</span>
 <span class="lineNum">    2092 </span>            :     {
-<span class="lineNum">    2093 </span><span class="lineCov">    2199476 :       while (__n)</span>
+<span class="lineNum">    2093 </span><span class="lineCov">    2199544 :       while (__n)</span>
 <span class="lineNum">    2094 </span>            :         {
-<span class="lineNum">    2095 </span><span class="lineCov">    1099737 :           __node_type* __tmp = __n;</span>
-<span class="lineNum">    2096 </span><span class="lineCov">    1099737 :           __n = __n-&gt;_M_next();</span>
-<span class="lineNum">    2097 </span><span class="lineCov">    1099737 :           _M_deallocate_node(__tmp);</span>
+<span class="lineNum">    2095 </span><span class="lineCov">    1099771 :           __node_type* __tmp = __n;</span>
+<span class="lineNum">    2096 </span><span class="lineCov">    1099771 :           __n = __n-&gt;_M_next();</span>
+<span class="lineNum">    2097 </span><span class="lineCov">    1099771 :           _M_deallocate_node(__tmp);</span>
 <span class="lineNum">    2098 </span>            :         }
 <span class="lineNum">    2099 </span><span class="lineCov">          2 :     }</span>
 <span class="lineNum">    2100 </span>            : 

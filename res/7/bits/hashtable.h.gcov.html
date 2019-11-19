@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 08:57:34</td>
+            <td class="headerValue">2019-11-19 11:04:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">19</td>
@@ -685,8 +685,8 @@
 <span class="lineNum">     623 </span>            :     protected:
 <a name="624"><span class="lineNum">     624 </span>            :       // Bucket index computation helpers.</a>
 <span class="lineNum">     625 </span>            :       size_type
-<span class="lineNum">     626 </span><span class="lineCov">    1335647 :       _M_bucket_index(__node_type* __n) const noexcept</span>
-<span class="lineNum">     627 </span><span class="lineCov">    1335647 :       { return __hash_code_base::_M_bucket_index(__n, _M_bucket_count); }</span>
+<span class="lineNum">     626 </span><span class="lineCov">    1336289 :       _M_bucket_index(__node_type* __n) const noexcept</span>
+<span class="lineNum">     627 </span><span class="lineCov">    1336289 :       { return __hash_code_base::_M_bucket_index(__n, _M_bucket_count); }</span>
 <a name="628"><span class="lineNum">     628 </span>            : </a>
 <span class="lineNum">     629 </span>            :       size_type
 <span class="lineNum">     630 </span><span class="lineCov">    1100034 :       _M_bucket_index(const key_type&amp; __k, __hash_code __c) const</span>
@@ -703,8 +703,8 @@
 <span class="lineNum">     641 </span>            :       {
 <span class="lineNum">     642 </span><span class="lineCov">    1100000 :         __node_base* __before_n = _M_find_before_node(__bkt, __key, __c);</span>
 <span class="lineNum">     643 </span><span class="lineCov">    1100000 :         if (__before_n)</span>
-<span class="lineNum">     644 </span><span class="lineCov">        263 :           return static_cast&lt;__node_type*&gt;(__before_n-&gt;_M_nxt);</span>
-<span class="lineNum">     645 </span><span class="lineCov">    1099737 :         return nullptr;</span>
+<span class="lineNum">     644 </span><span class="lineCov">        229 :           return static_cast&lt;__node_type*&gt;(__before_n-&gt;_M_nxt);</span>
+<span class="lineNum">     645 </span><span class="lineCov">    1099771 :         return nullptr;</span>
 <span class="lineNum">     646 </span>            :       }
 <span class="lineNum">     647 </span>            : 
 <span class="lineNum">     648 </span>            :       // Insert a node at the beginning of a bucket.
@@ -1605,19 +1605,19 @@
 <span class="lineNum">    1543 </span>            :     {
 <span class="lineNum">    1544 </span><span class="lineCov">    1100000 :       __node_base* __prev_p = _M_buckets[__n];</span>
 <span class="lineNum">    1545 </span><span class="lineCov">    1100000 :       if (!__prev_p)</span>
-<span class="lineNum">    1546 </span><span class="lineCov">     539328 :         return nullptr;</span>
+<span class="lineNum">    1546 </span><span class="lineCov">     538629 :         return nullptr;</span>
 <span class="lineNum">    1547 </span>            : 
-<span class="lineNum">    1548 </span><span class="lineCov">     796588 :       for (__node_type* __p = static_cast&lt;__node_type*&gt;(__prev_p-&gt;_M_nxt);;</span>
+<span class="lineNum">    1548 </span><span class="lineCov">     797902 :       for (__node_type* __p = static_cast&lt;__node_type*&gt;(__prev_p-&gt;_M_nxt);;</span>
 <span class="lineNum">    1549 </span>            :            __p = __p-&gt;_M_next())
 <span class="lineNum">    1550 </span>            :         {
-<span class="lineNum">    1551 </span><span class="lineCov">    1032504 :           if (this-&gt;_M_equals(__k, __code, __p))</span>
-<span class="lineNum">    1552 </span><span class="lineCov">        263 :             return __prev_p;</span>
+<span class="lineNum">    1551 </span><span class="lineCov">    1034433 :           if (this-&gt;_M_equals(__k, __code, __p))</span>
+<span class="lineNum">    1552 </span><span class="lineCov">        229 :             return __prev_p;</span>
 <span class="lineNum">    1553 </span>            : 
-<span class="lineNum">    1554 </span><span class="lineCov">     796325 :           if (!__p-&gt;_M_nxt || _M_bucket_index(__p-&gt;_M_next()) != __n)</span>
-<span class="lineNum">    1555 </span><span class="lineCov">     560409 :             break;</span>
-<span class="lineNum">    1556 </span><span class="lineCov">     235916 :           __prev_p = __p;</span>
+<span class="lineNum">    1554 </span><span class="lineCov">     797673 :           if (!__p-&gt;_M_nxt || _M_bucket_index(__p-&gt;_M_next()) != __n)</span>
+<span class="lineNum">    1555 </span><span class="lineCov">     561142 :             break;</span>
+<span class="lineNum">    1556 </span><span class="lineCov">     236531 :           __prev_p = __p;</span>
 <span class="lineNum">    1557 </span>            :         }
-<span class="lineNum">    1558 </span><span class="lineCov">     560409 :       return nullptr;</span>
+<span class="lineNum">    1558 </span><span class="lineCov">     561142 :       return nullptr;</span>
 <span class="lineNum">    1559 </span>            :     }
 <span class="lineNum">    1560 </span>            : 
 <span class="lineNum">    1561 </span>            :   template&lt;typename _Key, typename _Value,
@@ -1625,31 +1625,31 @@
 <span class="lineNum">    1563 </span>            :            typename _H1, typename _H2, typename _Hash, typename _RehashPolicy,
 <a name="1564"><span class="lineNum">    1564 </span>            :            typename _Traits&gt;</a>
 <span class="lineNum">    1565 </span>            :     void
-<span class="lineNum">    1566 </span><span class="lineCov">    1099737 :     _Hashtable&lt;_Key, _Value, _Alloc, _ExtractKey, _Equal,</span>
+<span class="lineNum">    1566 </span><span class="lineCov">    1099771 :     _Hashtable&lt;_Key, _Value, _Alloc, _ExtractKey, _Equal,</span>
 <span class="lineNum">    1567 </span>            :                _H1, _H2, _Hash, _RehashPolicy, _Traits&gt;::
 <span class="lineNum">    1568 </span>            :     _M_insert_bucket_begin(size_type __bkt, __node_type* __node)
 <span class="lineNum">    1569 </span>            :     {
-<span class="lineNum">    1570 </span><span class="lineCov">    1099737 :       if (_M_buckets[__bkt])</span>
+<span class="lineNum">    1570 </span><span class="lineCov">    1099771 :       if (_M_buckets[__bkt])</span>
 <span class="lineNum">    1571 </span>            :         {
 <span class="lineNum">    1572 </span>            :           // Bucket is not empty, we just need to insert the new node
 <span class="lineNum">    1573 </span>            :           // after the bucket before begin.
-<span class="lineNum">    1574 </span><span class="lineCov">     560399 :           __node-&gt;_M_nxt = _M_buckets[__bkt]-&gt;_M_nxt;</span>
-<span class="lineNum">    1575 </span><span class="lineCov">     560399 :           _M_buckets[__bkt]-&gt;_M_nxt = __node;</span>
+<span class="lineNum">    1574 </span><span class="lineCov">     561136 :           __node-&gt;_M_nxt = _M_buckets[__bkt]-&gt;_M_nxt;</span>
+<span class="lineNum">    1575 </span><span class="lineCov">     561136 :           _M_buckets[__bkt]-&gt;_M_nxt = __node;</span>
 <span class="lineNum">    1576 </span>            :         }
 <span class="lineNum">    1577 </span>            :       else
 <span class="lineNum">    1578 </span>            :         {
 <span class="lineNum">    1579 </span>            :           // The bucket is empty, the new node is inserted at the
 <span class="lineNum">    1580 </span>            :           // beginning of the singly-linked list and the bucket will
 <span class="lineNum">    1581 </span>            :           // contain _M_before_begin pointer.
-<span class="lineNum">    1582 </span><span class="lineCov">     539338 :           __node-&gt;_M_nxt = _M_before_begin._M_nxt;</span>
-<span class="lineNum">    1583 </span><span class="lineCov">     539338 :           _M_before_begin._M_nxt = __node;</span>
-<span class="lineNum">    1584 </span><span class="lineCov">     539338 :           if (__node-&gt;_M_nxt)</span>
+<span class="lineNum">    1582 </span><span class="lineCov">     538635 :           __node-&gt;_M_nxt = _M_before_begin._M_nxt;</span>
+<span class="lineNum">    1583 </span><span class="lineCov">     538635 :           _M_before_begin._M_nxt = __node;</span>
+<span class="lineNum">    1584 </span><span class="lineCov">     538635 :           if (__node-&gt;_M_nxt)</span>
 <span class="lineNum">    1585 </span>            :             // We must update former begin bucket that is pointing to
 <span class="lineNum">    1586 </span>            :             // _M_before_begin.
-<span class="lineNum">    1587 </span><span class="lineCov">     539336 :             _M_buckets[_M_bucket_index(__node-&gt;_M_next())] = __node;</span>
-<span class="lineNum">    1588 </span><span class="lineCov">     539338 :           _M_buckets[__bkt] = &amp;_M_before_begin;</span>
+<span class="lineNum">    1587 </span><span class="lineCov">     538633 :             _M_buckets[_M_bucket_index(__node-&gt;_M_next())] = __node;</span>
+<span class="lineNum">    1588 </span><span class="lineCov">     538635 :           _M_buckets[__bkt] = &amp;_M_before_begin;</span>
 <span class="lineNum">    1589 </span>            :         }
-<span class="lineNum">    1590 </span><span class="lineCov">    1099737 :     }</span>
+<span class="lineNum">    1590 </span><span class="lineCov">    1099771 :     }</span>
 <span class="lineNum">    1591 </span>            : 
 <span class="lineNum">    1592 </span>            :   template&lt;typename _Key, typename _Value,
 <span class="lineNum">    1593 </span>            :            typename _Alloc, typename _ExtractKey, typename _Equal,
@@ -1763,30 +1763,30 @@
 <span class="lineNum">    1701 </span>            :            typename _H1, typename _H2, typename _Hash, typename _RehashPolicy,
 <a name="1702"><span class="lineNum">    1702 </span>            :            typename _Traits&gt;</a>
 <span class="lineNum">    1703 </span>            :     auto
-<span class="lineNum">    1704 </span><span class="lineCov">    1099737 :     _Hashtable&lt;_Key, _Value, _Alloc, _ExtractKey, _Equal,</span>
+<span class="lineNum">    1704 </span><span class="lineCov">    1099771 :     _Hashtable&lt;_Key, _Value, _Alloc, _ExtractKey, _Equal,</span>
 <span class="lineNum">    1705 </span>            :                _H1, _H2, _Hash, _RehashPolicy, _Traits&gt;::
 <span class="lineNum">    1706 </span>            :     _M_insert_unique_node(size_type __bkt, __hash_code __code,
 <span class="lineNum">    1707 </span>            :                           __node_type* __node)
 <span class="lineNum">    1708 </span>            :     -&gt; iterator
 <span class="lineNum">    1709 </span>            :     {
-<span class="lineNum">    1710 </span><span class="lineCov">    1099737 :       const __rehash_state&amp; __saved_state = _M_rehash_policy._M_state();</span>
-<span class="lineNum">    1711 </span><span class="lineCov">    1099737 :       std::pair&lt;bool, std::size_t&gt; __do_rehash</span>
+<span class="lineNum">    1710 </span><span class="lineCov">    1099771 :       const __rehash_state&amp; __saved_state = _M_rehash_policy._M_state();</span>
+<span class="lineNum">    1711 </span><span class="lineCov">    1099771 :       std::pair&lt;bool, std::size_t&gt; __do_rehash</span>
 <span class="lineNum">    1712 </span>            :         = _M_rehash_policy._M_need_rehash(_M_bucket_count, _M_element_count, 1);
 <span class="lineNum">    1713 </span>            : 
 <span class="lineNum">    1714 </span>            :       __try
 <span class="lineNum">    1715 </span>            :         {
-<span class="lineNum">    1716 </span><span class="lineCov">    1099737 :           if (__do_rehash.first)</span>
+<span class="lineNum">    1716 </span><span class="lineCov">    1099771 :           if (__do_rehash.first)</span>
 <span class="lineNum">    1717 </span>            :             {
 <span class="lineNum">    1718 </span><span class="lineCov">         34 :               _M_rehash(__do_rehash.second, __saved_state);</span>
 <span class="lineNum">    1719 </span><span class="lineCov">         34 :               __bkt = _M_bucket_index(this-&gt;_M_extract()(__node-&gt;_M_v()), __code);</span>
 <span class="lineNum">    1720 </span>            :             }
 <span class="lineNum">    1721 </span>            : 
-<span class="lineNum">    1722 </span><span class="lineCov">    1099737 :           this-&gt;_M_store_code(__node, __code);</span>
+<span class="lineNum">    1722 </span><span class="lineCov">    1099771 :           this-&gt;_M_store_code(__node, __code);</span>
 <span class="lineNum">    1723 </span>            : 
 <span class="lineNum">    1724 </span>            :           // Always insert at the beginning of the bucket.
-<span class="lineNum">    1725 </span><span class="lineCov">    1099737 :           _M_insert_bucket_begin(__bkt, __node);</span>
-<span class="lineNum">    1726 </span><span class="lineCov">    1099737 :           ++_M_element_count;</span>
-<span class="lineNum">    1727 </span><span class="lineCov">    1099737 :           return iterator(__node);</span>
+<span class="lineNum">    1725 </span><span class="lineCov">    1099771 :           _M_insert_bucket_begin(__bkt, __node);</span>
+<span class="lineNum">    1726 </span><span class="lineCov">    1099771 :           ++_M_element_count;</span>
+<span class="lineNum">    1727 </span><span class="lineCov">    1099771 :           return iterator(__node);</span>
 <span class="lineNum">    1728 </span>            :         }
 <span class="lineNum">    1729 </span><span class="lineNoCov">          0 :       __catch(...)</span>
 <span class="lineNum">    1730 </span>            :         {
@@ -2161,17 +2161,17 @@
 <span class="lineNum">    2099 </span><span class="lineCov">    1883678 :           std::size_t __bkt = __hash_code_base::_M_bucket_index(__p, __n);</span>
 <span class="lineNum">    2100 </span><span class="lineCov">    1883678 :           if (!__new_buckets[__bkt])</span>
 <span class="lineNum">    2101 </span>            :             {
-<span class="lineNum">    2102 </span><span class="lineCov">    1487654 :               __p-&gt;_M_nxt = _M_before_begin._M_nxt;</span>
-<span class="lineNum">    2103 </span><span class="lineCov">    1487654 :               _M_before_begin._M_nxt = __p;</span>
-<span class="lineNum">    2104 </span><span class="lineCov">    1487654 :               __new_buckets[__bkt] = &amp;_M_before_begin;</span>
-<span class="lineNum">    2105 </span><span class="lineCov">    1487654 :               if (__p-&gt;_M_nxt)</span>
-<span class="lineNum">    2106 </span><span class="lineCov">    1487622 :                 __new_buckets[__bbegin_bkt] = __p;</span>
-<span class="lineNum">    2107 </span><span class="lineCov">    1487654 :               __bbegin_bkt = __bkt;</span>
+<span class="lineNum">    2102 </span><span class="lineCov">    1488141 :               __p-&gt;_M_nxt = _M_before_begin._M_nxt;</span>
+<span class="lineNum">    2103 </span><span class="lineCov">    1488141 :               _M_before_begin._M_nxt = __p;</span>
+<span class="lineNum">    2104 </span><span class="lineCov">    1488141 :               __new_buckets[__bkt] = &amp;_M_before_begin;</span>
+<span class="lineNum">    2105 </span><span class="lineCov">    1488141 :               if (__p-&gt;_M_nxt)</span>
+<span class="lineNum">    2106 </span><span class="lineCov">    1488109 :                 __new_buckets[__bbegin_bkt] = __p;</span>
+<span class="lineNum">    2107 </span><span class="lineCov">    1488141 :               __bbegin_bkt = __bkt;</span>
 <span class="lineNum">    2108 </span>            :             }
 <span class="lineNum">    2109 </span>            :           else
 <span class="lineNum">    2110 </span>            :             {
-<span class="lineNum">    2111 </span><span class="lineCov">     396024 :               __p-&gt;_M_nxt = __new_buckets[__bkt]-&gt;_M_nxt;</span>
-<span class="lineNum">    2112 </span><span class="lineCov">     396024 :               __new_buckets[__bkt]-&gt;_M_nxt = __p;</span>
+<span class="lineNum">    2111 </span><span class="lineCov">     395537 :               __p-&gt;_M_nxt = __new_buckets[__bkt]-&gt;_M_nxt;</span>
+<span class="lineNum">    2112 </span><span class="lineCov">     395537 :               __new_buckets[__bkt]-&gt;_M_nxt = __p;</span>
 <span class="lineNum">    2113 </span>            :             }
 <span class="lineNum">    2114 </span><span class="lineCov">    1883678 :           __p = __next;</span>
 <span class="lineNum">    2115 </span>            :         }
