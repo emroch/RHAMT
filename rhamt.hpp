@@ -321,7 +321,10 @@ const T *
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
 SplitNode::cread(HashType hash, Key key, int depth)
 {
-    return read(hash, key, depth);
+    int chldidx = getChild(hash, depth);
+    if (chldidx == -1)
+        { return nullptr; }
+    return children[chldidx]->cread(hash, key, depth+1);
 }
 
 

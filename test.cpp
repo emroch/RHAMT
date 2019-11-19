@@ -183,6 +183,64 @@ done:
     return retval;
 }
 
+bool test_missing_read()
+{
+    ReliableHAMT<int, int, uint8_t> hamt;
+    bool retval = false;
+
+    hamt.insert(0, 0);
+    const int * rv = hamt.read(256); // hash collision with key 0
+    if (nullptr != rv) {
+        printf("ERROR: %s %d: expected nullptr\n", __FILE__, __LINE__);
+        goto done;
+    }
+
+    rv = hamt.read(1);
+    if (nullptr != rv) {
+        printf("ERROR: %s %d: expected nullptr\n", __FILE__, __LINE__);
+        goto done;
+    }
+
+    retval = true;
+done:
+    return retval;
+}
+
+bool test_missing_remove()
+{
+    ReliableHAMT<int, int, uint8_t> hamt;
+    bool retval = false;
+
+    hamt.insert(0, 0);
+    int rv = hamt.remove(512);  // remove non-existant key from existing leaf
+    if (0 != rv) {
+        printf("ERROR: %s %d: removed non-existant key\n", __FILE__, __LINE__);
+        goto done;
+    }
+    if (1 != hamt.size()) {
+        printf("ERROR: %s %d: lost stored value\n", __FILE__, __LINE__);
+    }
+
+    rv = hamt.remove(1);  // remove key from non-existant node
+    if (0 != rv) {
+        printf("ERROR: %s %d: removed non-existant key\n", __FILE__, __LINE__);
+        goto done;
+    }
+    if (1 != hamt.size()) {
+        printf("ERROR: %s %d: lost stored value\n", __FILE__, __LINE__);
+        goto done;
+    }
+
+    if (0 != *hamt.read(0)) {
+        printf("ERROR: %s %d: incorrect read value\n", __FILE__, __LINE__);
+        goto done;
+    }
+
+    retval = true;
+done:
+    return retval;
+}
+
 int main(void)
 {
     printf("Beginning Testing...\n");
@@ -193,6 +251,8 @@ int main(void)
     unit_test(test_overwrite, "test_overwrite");
     unit_test(test_random_dense, "test_random_dense");
     unit_test(test_string_key, "test_string_key");
+    unit_test(test_missing_read, "test_missing_read");
+    unit_test(test_missing_remove, "test_missing_remove");
 
     printf("...Tests Complete\n");
 
