@@ -24,11 +24,17 @@ bool test_random_sparse(void)
     ReliableHAMT<int, int> rhamt;
     int k, v;
 
-    for (int i = 0; i < 1000000; ++i) {
+    for (int i = 0; i < 100000; ++i) {
         k = rand();
         v = rand();
         golden[k] = v;
         rhamt.insert(k, v);
+    }
+
+    if (rhamt.size() != golden.size()) {
+        printf("ERROR: %s %d: size mismatch (%lu != %lu)\n", __FILE__, __LINE__,
+                        rhamt.size(), golden.size());
+        return false;
     }
 
     for (auto it : golden) {
@@ -39,7 +45,15 @@ bool test_random_sparse(void)
         }
         if (*rv != it.second) {
             printf("ERROR: %s %d: unexpected values\n", __FILE__, __LINE__);
+            return false;
         }
+        rhamt.remove(it.first);
+    }
+
+    if (rhamt.size()) {
+        printf("ERROR: %s %d: expected size 0, instead size %lu\n",
+                __FILE__, __LINE__, rhamt.size());
+        return false;
     }
 
     return true;
@@ -92,14 +106,42 @@ bool test_small_rhamt()
     return true;
 }
 
+bool test_overwrite()
+{
+    ReliableHAMT<int, int, uint8_t> rhamt;
+    bool retval = false;
+
+    for (int i = 0; i < 1024; ++i)
+        rhamt.insert(i, i);
+    for (int i = 0; i < 1024; ++i)
+        rhamt.insert(i, i << 10);
+
+    for (int i = 0; i < 1024; ++i) {
+        const int *rv = rhamt.cread(i);
+        if (nullptr == rv) {
+            printf("ERROR: %s %d: unexpected nullptr\n", __FILE__, __LINE__);
+            goto done;
+        }
+        if ((i << 10) != *rv) {
+            printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
+                    __FILE__, __LINE__, i, i << 10, i, *rv);
+        }
+    }
+    retval = true;
+done:
+    return retval;
+}
+
 int main(void)
 {
     printf("Beginning Testing...\n");
-    srand(0);
+    srand(time(NULL));
 
     unit_test(test_small_rhamt, "test_small_rhamt");
     unit_test(test_random_sparse, "test_random_sparse");
+    unit_test(test_overwrite, "test_overwrite");
 
+    printf("...Tests Complete\n");
 
     return 0;
 }

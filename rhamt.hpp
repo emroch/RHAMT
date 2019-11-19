@@ -64,6 +64,7 @@ class ReliableHAMT {
                 int getChild(const HashType, const int depth) const;
                 //const Node * cgetChild(const HashType, const int depth) const;
             public:
+                SplitNode() : count(0) {}
                 ~SplitNode();
                 /* Implementations of Node virtual functions */
                 int insert(HashType, Key, const T&, int depth);
