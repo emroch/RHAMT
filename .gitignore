@@ -35,4 +35,4 @@
 *.gcda
 *.gcno
 *.info
-
+res/*
