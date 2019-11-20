@@ -80,6 +80,8 @@ class ReliableHAMT {
                  * of hash collisions)
                  */
                 std::list<std::pair<const Key, T>, Alloc > data;
+                /* Instance of Pred template type for comparing keys */
+                Pred pred;
             public:
                 ~LeafNode();
                 /* Implementations of Node virtual functions */
@@ -122,8 +124,7 @@ LeafNode::insert(HashType hash, Key key, const T& t, int depth)
     (void)hash;
     (void)depth;
     for (auto & it : data) {
-        //if (Pred(it.first, key)) {
-        if (it.first == key) {
+        if (pred(it.first, key)) {
             it.second = t;
             return 0;
         }
@@ -150,8 +151,7 @@ LeafNode::read(HashType hash, Key key, int depth)
     (void)hash;
     (void)depth;
     for (auto & it : data) {
-        //if (Pred(it.first, key)) {
-        if (it.first == key) {
+        if (pred(it.first, key)) {
             return &it.second;
         }
     }
@@ -193,8 +193,7 @@ LeafNode::remove(HashType hash, Key key, int depth, size_t *childcount)
     (void)depth;
     int rv = 0;
     for (auto & it : data) {
-        //if (Pred(it.first, key)) {
-        if (it.first == key) {
+        if (pred(it.first, key)) {
             data.remove(it);
             rv = 1;
             break;
@@ -270,8 +269,8 @@ SplitNode::insert(HashType hash, Key key, const T& t, int depth)
     int chldidx = getChild(hash, depth);
     if (-1 == chldidx) {
         HashType shash = ReliableHAMT::subhash(hash, depth);
-        std::bitset<32> andmask((1 << shash) - 1);
-        chldidx = (ptrmask & andmask).count(); // inside [0, 31]
+        std::bitset<32> mask((1 << shash) - 1);
+        chldidx = (ptrmask & mask).count(); // inside [0, 31]
         RHAMT::Node * newnode;
         if (depth == (maxdepth-1))
             { newnode = new RHAMT::LeafNode(); }
@@ -322,7 +321,10 @@ const T *
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
 SplitNode::cread(HashType hash, Key key, int depth)
 {
-    return read(hash, key, depth);
+    int chldidx = getChild(hash, depth);
+    if (chldidx == -1)
+        { return nullptr; }
+    return children[chldidx]->cread(hash, key, depth+1);
 }
 
 
@@ -351,11 +353,12 @@ SplitNode::remove(HashType hash, Key key, int depth, size_t *childcount)
     count -= rv;
 
     /* check if childcount is zero and deallocate child if necessary */
-    // if (0 == *childcount) {
-    //     delete children[chldidx];
-    //     children.erase(children.begin() + chldidx);
-    //     ptrmask.reset(chldidx);
-    // }
+    if (0 == *childcount) {
+        delete children[chldidx];
+        children.erase(children.begin() + chldidx);
+        HashType shash = ReliableHAMT::subhash(hash, depth);
+        ptrmask.reset(shash);
+    }
 
     /* Update childcount with current node's key count */
     *childcount = count;

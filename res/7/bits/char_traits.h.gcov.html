@@ -31,18 +31,18 @@
             <td class="headerValue">test.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryMed">75.0 %</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">41.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 08:57:34</td>
+            <td class="headerValue">2019-11-19 16:08:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
-            <td class="headerCovTableEntry">1</td>
-            <td class="headerCovTableEntryHi">100.0 %</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -157,14 +157,14 @@
 <span class="lineNum">      95 </span>            :       static _GLIBCXX14_CONSTEXPR void
 <span class="lineNum">      96 </span>            :       assign(char_type&amp; __c1, const char_type&amp; __c2)
 <span class="lineNum">      97 </span>            :       { __c1 = __c2; }
-<span class="lineNum">      98 </span>            : 
+<a name="98"><span class="lineNum">      98 </span>            : </a>
 <span class="lineNum">      99 </span>            :       static _GLIBCXX_CONSTEXPR bool
-<span class="lineNum">     100 </span>            :       eq(const char_type&amp; __c1, const char_type&amp; __c2)
-<span class="lineNum">     101 </span>            :       { return __c1 == __c2; }
-<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :       eq(const char_type&amp; __c1, const char_type&amp; __c2)</span>
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :       { return __c1 == __c2; }</span>
+<a name="102"><span class="lineNum">     102 </span>            : </a>
 <span class="lineNum">     103 </span>            :       static _GLIBCXX_CONSTEXPR bool
-<span class="lineNum">     104 </span>            :       lt(const char_type&amp; __c1, const char_type&amp; __c2)
-<span class="lineNum">     105 </span>            :       { return __c1 &lt; __c2; }
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :       lt(const char_type&amp; __c1, const char_type&amp; __c2)</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :       { return __c1 &lt; __c2; }</span>
 <span class="lineNum">     106 </span>            : 
 <span class="lineNum">     107 </span>            :       static _GLIBCXX14_CONSTEXPR int
 <span class="lineNum">     108 </span>            :       compare(const char_type* __s1, const char_type* __s2, std::size_t __n);
@@ -205,28 +205,28 @@
 <span class="lineNum">     143 </span>            :       { return !eq_int_type(__c, eof()) ? __c : to_int_type(char_type()); }
 <span class="lineNum">     144 </span>            :     };
 <span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span>            :   template&lt;typename _CharT&gt;
+<a name="146"><span class="lineNum">     146 </span>            :   template&lt;typename _CharT&gt;</a>
 <span class="lineNum">     147 </span>            :     _GLIBCXX14_CONSTEXPR int
-<span class="lineNum">     148 </span>            :     char_traits&lt;_CharT&gt;::
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :     char_traits&lt;_CharT&gt;::</span>
 <span class="lineNum">     149 </span>            :     compare(const char_type* __s1, const char_type* __s2, std::size_t __n)
 <span class="lineNum">     150 </span>            :     {
-<span class="lineNum">     151 </span>            :       for (std::size_t __i = 0; __i &lt; __n; ++__i)
-<span class="lineNum">     152 </span>            :         if (lt(__s1[__i], __s2[__i]))
-<span class="lineNum">     153 </span>            :           return -1;
-<span class="lineNum">     154 </span>            :         else if (lt(__s2[__i], __s1[__i]))
-<span class="lineNum">     155 </span>            :           return 1;
-<span class="lineNum">     156 </span>            :       return 0;
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :       for (std::size_t __i = 0; __i &lt; __n; ++__i)</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :         if (lt(__s1[__i], __s2[__i]))</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :           return -1;</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :         else if (lt(__s2[__i], __s1[__i]))</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :           return 1;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :       return 0;</span>
 <span class="lineNum">     157 </span>            :     }
 <span class="lineNum">     158 </span>            : 
-<span class="lineNum">     159 </span>            :   template&lt;typename _CharT&gt;
+<a name="159"><span class="lineNum">     159 </span>            :   template&lt;typename _CharT&gt;</a>
 <span class="lineNum">     160 </span>            :     _GLIBCXX14_CONSTEXPR std::size_t
-<span class="lineNum">     161 </span>            :     char_traits&lt;_CharT&gt;::
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :     char_traits&lt;_CharT&gt;::</span>
 <span class="lineNum">     162 </span>            :     length(const char_type* __p)
 <span class="lineNum">     163 </span>            :     {
-<span class="lineNum">     164 </span>            :       std::size_t __i = 0;
-<span class="lineNum">     165 </span>            :       while (!eq(__p[__i], char_type()))
-<span class="lineNum">     166 </span>            :         ++__i;
-<span class="lineNum">     167 </span>            :       return __i;
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :       std::size_t __i = 0;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :       while (!eq(__p[__i], char_type()))</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :         ++__i;</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :       return __i;</span>
 <span class="lineNum">     168 </span>            :     }
 <span class="lineNum">     169 </span>            : 
 <span class="lineNum">     170 </span>            :   template&lt;typename _CharT&gt;
@@ -292,7 +292,7 @@
 <span class="lineNum">     230 </span>            :     {
 <span class="lineNum">     231 </span>            :       while (__builtin_constant_p(*__s) &amp;&amp; *__s)
 <span class="lineNum">     232 </span>            :         __s++;
-<span class="lineNum">     233 </span>            :       return __builtin_constant_p(*__s);
+<span class="lineNum">     233 </span><span class="lineCov">          9 :       return __builtin_constant_p(*__s);</span>
 <span class="lineNum">     234 </span>            :     }
 <span class="lineNum">     235 </span>            : 
 <span class="lineNum">     236 </span>            :   /**
@@ -341,10 +341,10 @@
 <span class="lineNum">     279 </span>            :       typedef streampos         pos_type;
 <span class="lineNum">     280 </span>            :       typedef streamoff         off_type;
 <span class="lineNum">     281 </span>            :       typedef mbstate_t         state_type;
-<span class="lineNum">     282 </span>            : 
+<a name="282"><span class="lineNum">     282 </span>            : </a>
 <span class="lineNum">     283 </span>            :       static _GLIBCXX17_CONSTEXPR void
-<span class="lineNum">     284 </span>            :       assign(char_type&amp; __c1, const char_type&amp; __c2) _GLIBCXX_NOEXCEPT
-<span class="lineNum">     285 </span>            :       { __c1 = __c2; }
+<span class="lineNum">     284 </span><span class="lineCov">         29 :       assign(char_type&amp; __c1, const char_type&amp; __c2) _GLIBCXX_NOEXCEPT</span>
+<span class="lineNum">     285 </span><span class="lineCov">         29 :       { __c1 = __c2; }</span>
 <span class="lineNum">     286 </span>            : 
 <span class="lineNum">     287 </span>            :       static _GLIBCXX_CONSTEXPR bool
 <span class="lineNum">     288 </span>            :       eq(const char_type&amp; __c1, const char_type&amp; __c2) _GLIBCXX_NOEXCEPT
@@ -362,24 +362,24 @@
 <span class="lineNum">     300 </span><span class="lineCov">          1 :       compare(const char_type* __s1, const char_type* __s2, size_t __n)</span>
 <span class="lineNum">     301 </span>            :       {
 <span class="lineNum">     302 </span>            : #if __cplusplus &gt; 201402
-<span class="lineNum">     303 </span>            :         if (__builtin_constant_p(__n)
+<span class="lineNum">     303 </span><span class="lineCov">          1 :         if (__builtin_constant_p(__n)</span>
 <span class="lineNum">     304 </span>            :             &amp;&amp; __constant_char_array_p(__s1, __n)
-<span class="lineNum">     305 </span>            :             &amp;&amp; __constant_char_array_p(__s2, __n))
-<span class="lineNum">     306 </span>            :           return __gnu_cxx::char_traits&lt;char_type&gt;::compare(__s1, __s2, __n);
+<span class="lineNum">     305 </span><span class="lineCov">          1 :             &amp;&amp; __constant_char_array_p(__s2, __n))</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :           return __gnu_cxx::char_traits&lt;char_type&gt;::compare(__s1, __s2, __n);</span>
 <span class="lineNum">     307 </span>            : #endif
 <span class="lineNum">     308 </span><span class="lineCov">          1 :         if (__n == 0)</span>
 <span class="lineNum">     309 </span><span class="lineNoCov">          0 :           return 0;</span>
 <span class="lineNum">     310 </span><span class="lineCov">          1 :         return __builtin_memcmp(__s1, __s2, __n);</span>
 <span class="lineNum">     311 </span>            :       }
-<span class="lineNum">     312 </span>            : 
+<a name="312"><span class="lineNum">     312 </span>            : </a>
 <span class="lineNum">     313 </span>            :       static _GLIBCXX17_CONSTEXPR size_t
-<span class="lineNum">     314 </span>            :       length(const char_type* __s)
+<span class="lineNum">     314 </span><span class="lineCov">          9 :       length(const char_type* __s)</span>
 <span class="lineNum">     315 </span>            :       {
 <span class="lineNum">     316 </span>            : #if __cplusplus &gt; 201402
-<span class="lineNum">     317 </span>            :         if (__constant_string_p(__s))
-<span class="lineNum">     318 </span>            :           return __gnu_cxx::char_traits&lt;char_type&gt;::length(__s);
+<span class="lineNum">     317 </span><span class="lineCov">          9 :         if (__constant_string_p(__s))</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :           return __gnu_cxx::char_traits&lt;char_type&gt;::length(__s);</span>
 <span class="lineNum">     319 </span>            : #endif
-<span class="lineNum">     320 </span>            :         return __builtin_strlen(__s);
+<span class="lineNum">     320 </span><span class="lineCov">          9 :         return __builtin_strlen(__s);</span>
 <span class="lineNum">     321 </span>            :       }
 <span class="lineNum">     322 </span>            : 
 <span class="lineNum">     323 </span>            :       static _GLIBCXX17_CONSTEXPR const char_type*
@@ -403,13 +403,13 @@
 <span class="lineNum">     341 </span>            :           return __s1;
 <span class="lineNum">     342 </span>            :         return static_cast&lt;char_type*&gt;(__builtin_memmove(__s1, __s2, __n));
 <span class="lineNum">     343 </span>            :       }
-<span class="lineNum">     344 </span>            : 
+<a name="344"><span class="lineNum">     344 </span>            : </a>
 <span class="lineNum">     345 </span>            :       static char_type*
-<span class="lineNum">     346 </span>            :       copy(char_type* __s1, const char_type* __s2, size_t __n)
+<span class="lineNum">     346 </span><span class="lineCov">         29 :       copy(char_type* __s1, const char_type* __s2, size_t __n)</span>
 <span class="lineNum">     347 </span>            :       {
-<span class="lineNum">     348 </span>            :         if (__n == 0)
-<span class="lineNum">     349 </span>            :           return __s1;
-<span class="lineNum">     350 </span>            :         return static_cast&lt;char_type*&gt;(__builtin_memcpy(__s1, __s2, __n));
+<span class="lineNum">     348 </span><span class="lineCov">         29 :         if (__n == 0)</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :           return __s1;</span>
+<span class="lineNum">     350 </span><span class="lineCov">         29 :         return static_cast&lt;char_type*&gt;(__builtin_memcpy(__s1, __s2, __n));</span>
 <span class="lineNum">     351 </span>            :       }
 <span class="lineNum">     352 </span>            : 
 <span class="lineNum">     353 </span>            :       static char_type*

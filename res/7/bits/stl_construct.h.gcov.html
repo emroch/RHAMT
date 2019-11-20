@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2019-11-19 08:57:34</td>
+            <td class="headerValue">2019-11-19 16:08:44</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">9</td>
@@ -176,7 +176,7 @@
 <span class="lineNum">     114 </span>            :     {
 <a name="115"><span class="lineNum">     115 </span>            :       template&lt;typename _ForwardIterator&gt;</a>
 <span class="lineNum">     116 </span>            :         static void
-<span class="lineNum">     117 </span><span class="lineCov">    5831939 :         __destroy(_ForwardIterator, _ForwardIterator) { }</span>
+<span class="lineNum">     117 </span><span class="lineCov">    5831786 :         __destroy(_ForwardIterator, _ForwardIterator) { }</span>
 <span class="lineNum">     118 </span>            :     };
 <span class="lineNum">     119 </span>            : 
 <span class="lineNum">     120 </span>            :   /**
@@ -186,7 +186,7 @@
 <span class="lineNum">     124 </span>            :    */
 <a name="125"><span class="lineNum">     125 </span>            :   template&lt;typename _ForwardIterator&gt;</a>
 <span class="lineNum">     126 </span>            :     inline void
-<span class="lineNum">     127 </span><span class="lineCov">    5831939 :     _Destroy(_ForwardIterator __first, _ForwardIterator __last)</span>
+<span class="lineNum">     127 </span><span class="lineCov">    5831786 :     _Destroy(_ForwardIterator __first, _ForwardIterator __last)</span>
 <span class="lineNum">     128 </span>            :     {
 <span class="lineNum">     129 </span>            :       typedef typename iterator_traits&lt;_ForwardIterator&gt;::value_type
 <span class="lineNum">     130 </span>            :                        _Value_type;
@@ -196,8 +196,8 @@
 <span class="lineNum">     134 </span>            :                     &quot;value type is destructible&quot;);
 <span class="lineNum">     135 </span>            : #endif
 <span class="lineNum">     136 </span>            :       std::_Destroy_aux&lt;__has_trivial_destructor(_Value_type)&gt;::
-<span class="lineNum">     137 </span><span class="lineCov">    5831939 :         __destroy(__first, __last);</span>
-<span class="lineNum">     138 </span><span class="lineCov">    5831939 :     }</span>
+<span class="lineNum">     137 </span><span class="lineCov">    5831786 :         __destroy(__first, __last);</span>
+<span class="lineNum">     138 </span><span class="lineCov">    5831786 :     }</span>
 <span class="lineNum">     139 </span>            : 
 <span class="lineNum">     140 </span>            :   template&lt;bool&gt;
 <span class="lineNum">     141 </span>            :     struct _Destroy_n_aux
@@ -262,11 +262,11 @@
 <span class="lineNum">     200 </span>            : 
 <a name="201"><span class="lineNum">     201 </span>            :   template&lt;typename _ForwardIterator, typename _Tp&gt;</a>
 <span class="lineNum">     202 </span>            :     inline void
-<span class="lineNum">     203 </span><span class="lineCov">    5831939 :     _Destroy(_ForwardIterator __first, _ForwardIterator __last,</span>
+<span class="lineNum">     203 </span><span class="lineCov">    5831786 :     _Destroy(_ForwardIterator __first, _ForwardIterator __last,</span>
 <span class="lineNum">     204 </span>            :              allocator&lt;_Tp&gt;&amp;)
 <span class="lineNum">     205 </span>            :     {
-<span class="lineNum">     206 </span><span class="lineCov">    5831939 :       _Destroy(__first, __last);</span>
-<span class="lineNum">     207 </span><span class="lineCov">    5831939 :     }</span>
+<span class="lineNum">     206 </span><span class="lineCov">    5831786 :       _Destroy(__first, __last);</span>
+<span class="lineNum">     207 </span><span class="lineCov">    5831786 :     }</span>
 <span class="lineNum">     208 </span>            : 
 <span class="lineNum">     209 </span>            : #if __cplusplus &gt; 201402L
 <span class="lineNum">     210 </span>            :   template &lt;typename _Tp&gt;
