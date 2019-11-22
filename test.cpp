@@ -41,7 +41,7 @@ bool test_random_sparse(void)
     }
 
     for (auto it : golden) {
-        const int *rv = rhamt.cread(it.first);
+        const int *rv = rhamt.read(it.first);
         if (nullptr == rv) {
             FAIL("unexpected nullptr");
         }
@@ -117,7 +117,7 @@ bool test_overwrite()
         rhamt.insert(i, i << 10);
 
     for (int i = 0; i < 1024; ++i) {
-        const int *rv = rhamt.cread(i);
+        const int *rv = rhamt.read(i);
         if (nullptr == rv) {
             FAIL("unexpected nullptr");
         }
@@ -144,7 +144,7 @@ bool test_random_dense()
     }
 
     for (auto it : golden) {
-        const int * rv = rhamt.cread(it.first);
+        const int * rv = rhamt.read(it.first);
         if (nullptr == rv) {
             FAIL("unexpected nullptr");
         }
@@ -162,7 +162,7 @@ bool test_string_key()
     ReliableHAMT<std::string, int, 0> hamt;
 
     hamt.insert("Yabadabadoo!", 5132);
-    const int * rv = hamt.cread("Yabadabadoo!");
+    const int * rv = hamt.read("Yabadabadoo!");
     if (nullptr == rv) {
         FAIL("unexpected nullptr");
     }
@@ -188,7 +188,7 @@ bool test_missing_read()
         FAIL("expected nullptr");
     }
 
-    rv = hamt.cread(2);
+    rv = hamt.read(2);
     if (nullptr != rv) {
         FAIL("expected nullptr");
     }

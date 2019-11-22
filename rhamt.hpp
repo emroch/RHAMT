@@ -45,7 +45,7 @@ class ReliableHAMT {
                 virtual int insert(HashType, Key, const T&, int depth) = 0;
                 /* Retrieve a value from HAMT with given hash and key */
                 virtual T * read(HashType, Key, int depth) = 0;
-                virtual const T * cread(HashType, Key, int depth) = 0;
+                virtual const T * read(HashType, Key, int depth) const = 0;
                 /* Remove a value from HAMT with given hash and key, returning
                  * 1 if a leaf is destroyed, otherwise 0
                  */
@@ -69,7 +69,7 @@ class ReliableHAMT {
                 /* Implementations of Node virtual functions */
                 int insert(HashType, Key, const T&, int depth);
                 T * read(HashType, Key, int depth);
-                const T * cread(HashType, Key, int depth);
+                const T * read(HashType, Key, int depth) const;
                 int remove(HashType, Key, int depth, size_t *);
                 size_t getCount();
         };
@@ -86,7 +86,7 @@ class ReliableHAMT {
                 ~LeafNode();
                 /* Implementations of Node virtual functions */
                 int insert(HashType, Key, const T&, int depth);
-                const T * cread(HashType, Key, int depth);
+                const T * read(HashType, Key, int depth) const;
                 T * read(HashType, Key, int depth);
                 int remove(HashType, Key, int depth, size_t *);
         };
@@ -99,7 +99,7 @@ class ReliableHAMT {
     public:
         int insert(Key, const T&);
         T * read(Key);
-        const T * cread(Key);
+        const T * read(Key) const;
         int remove(Key);
         size_t size();
 };
@@ -168,7 +168,7 @@ template<   class Key,
         >
 const T *
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
-LeafNode::cread(HashType hash, Key key, int depth)
+LeafNode::read(HashType hash, Key key, int depth) const
 {
     return this->read(hash, key, depth);
 }
@@ -319,12 +319,12 @@ template<   class Key,
         >
 const T *
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
-SplitNode::cread(HashType hash, Key key, int depth)
+SplitNode::read(HashType hash, Key key, int depth) const
 {
     int chldidx = getChild(hash, depth);
     if (chldidx == -1)
         { return nullptr; }
-    return children[chldidx]->cread(hash, key, depth+1);
+    return children[chldidx]->read(hash, key, depth+1);
 }
 
 
@@ -442,10 +442,10 @@ template<   class Key,
         >
 const T *
 ReliableHAMT<Key, T, HashType, Hash, Pred, Alloc>::
-cread(Key key)
+read(Key key) const
 {
     HashType hash = hasher(key);
-    return root.cread(hash, key, 0);
+    return root.read(hash, key, 0);
 }
 
 
