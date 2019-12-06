@@ -9,7 +9,7 @@
 #include <functional>
 
 
-template <class Key, class T, unsigned FT = 0, class HashType  = uint32_t,
+template <class Key, class T, unsigned FT = 0, class HashType = uint32_t,
           class Hash = std::hash<Key>, class Pred = std::equal_to<Key>,
           class Alloc = std::allocator<std::pair<const Key, T>>>
 class ReliableHAMT {
@@ -57,10 +57,10 @@ private:
     /* Max depth of tree, based on number of children at each level */
     static constexpr int soh = sizeof(HashType) * 8;
     static constexpr int maxdepth = (soh + (nlog2chldrn - 1)) / nlog2chldrn;
+
     static constexpr int ft = 2 * FT + 1;
     static_assert(FT < 8,
-            "Do not support fault tolerance values greater than 7");
-
+            "Fault tolerance values greater than 7 are not supported");
 
     /* Extract subhash for indexing child array at depth */
     static constexpr hash_type subhash(const hash_type hash, const int depth)
@@ -90,14 +90,16 @@ private:
     private:
         /* Avoid typing long gross template type multiple times */
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+
+        /* Redundant arrays of child pointers */
         std::array<Node *, RHAMT::ft> children [nchldrn];
         /* Number of keys stored in subtree rooted by this node */
         size_t _count;
         /* Calculate index of child node based on `ptrmask` */
         int getChild(const hash_type&, const int depth);
         // TODO: Figure out this nonsense
-        Voter<std::array<Node *, 3>, 1> childvoter =
-                                        Voter<std::array<Node *, 3>, 1>();
+        Voter<std::array<Node *, ft>, FT> childvoter =
+                                        Voter<std::array<Node *, ft>, FT>();
     public:
         SplitNode() : _count(0) {
             for (int i = 0; i < nchldrn; ++i)

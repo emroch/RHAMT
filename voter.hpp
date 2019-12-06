@@ -35,7 +35,7 @@ struct Voter {
                 counts.push_back(1);
     o_loop_next: ;
             }
-            
+
             // Terminate early if there is full agreement
             if (vals.size() == 1)
                 { goto done; }

@@ -231,7 +231,7 @@ int main(void)
     srand(time(NULL));
 
     unit_test(test_small_rhamt, "test_small_rhamt");
-    unit_test(test_random_sparse, "test_random_sparse");
+    // unit_test(test_random_sparse, "test_random_sparse");
     unit_test(test_overwrite, "test_overwrite");
     unit_test(test_random_dense, "test_random_dense");
     unit_test(test_string_key, "test_string_key");
