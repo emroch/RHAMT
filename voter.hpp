@@ -1,20 +1,29 @@
+#ifndef _VOTER_HPP
+#define _VOTER_HPP
 #include <vector>
+
+#if __cplusplus == 201703L
+#define constif if constexpr
+#else
+#define constif if
+#endif
 
 // Container has Random Access Iterator
 template <typename Container, int FT>
 struct Voter {
     constexpr Voter()  = default;
-    bool operator() (Container & c)
+    bool operator() (Container & c) const
     {
         using C = typename Container::value_type;
         std::vector<C> vals;
         std::vector<int> counts;
         bool rv = true;
         // If we have no reliability guarantees, simply return true
-        if constexpr (0 == FT)
+
+        constif (0 == FT)
             { goto done; }
 
-        else if constexpr (FT) {
+        else constif (FT) {
             for (const auto &cit : c) {
                 for (auto vit = vals.cbegin(); vit != vals.cend(); vit++) {
                     if (cit == *vit) {
@@ -52,3 +61,5 @@ done:
         return rv;
     }
 };
+#undef constif
+#endif
