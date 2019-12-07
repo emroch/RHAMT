@@ -9,7 +9,7 @@
 
 #define FAIL(msg)   printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg); return false;
 
-#define FT 1
+#define FT 2
 
 bool unit_test(bool (*f)(void), std::string name) {
     printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",

@@ -45,8 +45,8 @@ public:
     int remove(const key_type&);
     // void clear();
 
-    mapped_type *       read(const key_type&);
-    const mapped_type * cread(const key_type&);
+    // mapped_type *       read(const key_type&);
+    const mapped_type * read(const key_type&);
 
 
 private:
@@ -71,7 +71,7 @@ private:
     }
 
     /* If an error is detected, repair the trie along that path */
-    void repair(const hash_type& path);
+    void repair(const hash_type&);
 
     /* Virtual base class */
     class Node {
@@ -85,7 +85,7 @@ private:
         virtual int remove(const hash_type&, const key_type&,
                            int depth, size_t *) = 0;
         // Retrieve a value from HAMT with given hash and key
-        virtual mapped_type * read(const hash_type&, const key_type&,
+        virtual const mapped_type * read(const hash_type&, const key_type&,
                                    int depth) = 0;
     };
 
@@ -115,12 +115,15 @@ private:
         int insert(const hash_type&, const key_type&,
                    const mapped_type&, int depth);
         int remove(const hash_type&, const key_type&, int depth, size_t *);
-        mapped_type * read(const hash_type&, const key_type&, int depth);
+        const mapped_type * read(const hash_type&, const key_type&, int depth);
         size_t getCount() const { return _count; };
     };
 
     class LeafNode : public ReliableHAMT::Node {
     private:
+        /* Avoid typing long gross template type multiple times */
+        using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+
         // Key-value store for data (expected size == 1, list in case
         // of hash collisions)
         std::list<value_type, allocator_type> data;
@@ -139,7 +142,7 @@ private:
         int insert(const hash_type&, const key_type&,
                    const mapped_type&, int depth);
         int remove(const hash_type&, const key_type&, int depth, size_t *);
-        mapped_type * read(const hash_type&, const key_type&, int depth);
+        const mapped_type * read(const hash_type&, const key_type&, int depth);
     };
 
     SplitNode _root;
@@ -153,6 +156,8 @@ int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
 {
+    (void)depth;
+
     /* Verify this node is correct by comparing the provided hash with the
      * agreed upon value after voting. If the hash is incorrect, we are not
      * at the correct node, so we must repair the structure.
@@ -162,18 +167,18 @@ LeafNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
         printf("Uh-oh, an error was found, entering repair mode");
     }
 
-    /* Perform a linear search through collision list for a matching key.
-    * If found, simply update the value and return, otherwise add the new
-    * key-value pair.
-    */
-    (void)depth;
-
+    /* Normally, we don't expect multiple keys to map to the same hash, since
+     * most key types have a strong hash function available. If a collision
+     * does occur, we must search through the list to find the matching key.
+     */
     for (auto & it : data) {
         if (key_eq(it.first, key)) {
             it.second = val;
             return 0;
         }
     }
+
+    /* If no match was found, insert the new key-value pair */
     data.push_back(std::make_pair(key, val));
     return 1;
 }
@@ -185,6 +190,8 @@ ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::remove(const HashType& hash, const Key& key, int depth,
                  size_t *childcount)
 {
+    (void)depth;
+
     /* Verify this node is correct by comparing the provided hash with the
      * agreed upon value after voting. If the hash is incorrect, we are not
      * at the correct node, so we must repair the structure.
@@ -192,14 +199,13 @@ LeafNode::remove(const HashType& hash, const Key& key, int depth,
     hashvoter(hashes);
     if (hash != hashes[0]) {
         printf("Uh-oh, an error was found, entering repair mode");
+        //RHAMT::repair(hash);
     }
    
     /* Search for matching key-value pair, removing it if found. Update the
      * parent's `childcount` with the size of the data list.  Return 1 if
      * a value was successfully removed, otherwise 0.
      */
-    (void)depth;
-
     int rv = 0;
     for (auto & it : data) {
         if (key_eq(it.first, key)) {
@@ -214,10 +220,13 @@ LeafNode::remove(const HashType& hash, const Key& key, int depth,
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-T *
+const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::read(const HashType& hash, const Key& key, int depth)
 {
+    (void)hash;
+    (void)depth;
+
     /* Verify this node is correct by comparing the provided hash with the
      * agreed upon value after voting. If the hash is incorrect, we are not
      * at the correct node, so we must repair the structure.
@@ -225,14 +234,12 @@ LeafNode::read(const HashType& hash, const Key& key, int depth)
     hashvoter(hashes);
     if (hash != hashes[0]) {
         printf("Uh-oh, an error was found, entering repair mode");
+        //RHAMT::repair(hash);
     }
 
     /* Read a key-value pair from the data list, returning a pointer to the
      * value or a null pointer if no matching key was found.
      */
-    (void)hash;
-    (void)depth;
-
     for (auto & it : data) {
         if (key_eq(it.first, key)) {
             return &it.second;
@@ -256,9 +263,6 @@ inline int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 SplitNode::getChild(const HashType& hash, const int depth)
 {
-    /* Get the subhash for this level and check if the appropriate child bit
-     * is set. If not, the child is not present, so return with error.
-     */
     HashType shash = ReliableHAMT::subhash(hash, depth);
     return shash;
 }
@@ -269,27 +273,25 @@ int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 SplitNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
 {
-    /* Find the appropriate index into the children array. If the child does
-     * not already exist, allocate a new node (leaf or split, based on depth)
-     * and set bitmask. The index to insert is recalculated to maintain proper
-     * ordering.
-     */
     int child_idx = getChild(hash, depth);
-    //SplitNode::childvoter(children[child_idx]);
 
     if (nullptr == children[child_idx][0]) {
-        RHAMT::Node * newnode;
-        if (depth == (maxdepth-1))
-            { newnode = new RHAMT::LeafNode(hash); }
-        else
-            { newnode = new RHAMT::SplitNode(); }
-        for (int j = 0; j < ft; ++j)
-            children[child_idx][j] = newnode;
+        // vote and check again before modifying the structure to ensure
+        // the child pointer really is null.
+        childvoter(children[child_idx]);
+        if (nullptr == children[child_idx][0]) {
+            RHAMT::Node * newnode;
+            if (depth == (maxdepth-1))
+                { newnode = new RHAMT::LeafNode(hash); }
+            else
+                { newnode = new RHAMT::SplitNode(); }
+            for (int j = 0; j < ft; ++j)
+                children[child_idx][j] = newnode;
+        }
     }
 
-    /* Assuming child exists (or was created), recursively insert new value and
-     * update the child count appropriately.
-     */
+    // Assume the first pointer is correct (or was just created) and insert
+    // new value recursively. Total correctness will be checked at the leaf.
     int rv = children[child_idx][0]->insert(hash, key, val, depth+1);
     _count += rv;
     return rv;
@@ -306,18 +308,28 @@ SplitNode::remove(const HashType& hash, const Key& key, int depth,
      * simply return 0 to indicate no removal.
      */
     int child_idx = getChild(hash, depth);
-    //SplitNode::childvoter(children[child_idx]);
-    if (nullptr == children[child_idx][0])
-        return 0;
+
+    // If child is not allocated, double check (lest we lose track of data)
+    // and return zero if there is really no child
+    if (nullptr == children[child_idx][0]) {
+        childvoter(children[child_idx]);
+        if (nullptr == children[child_idx][0])
+            return 0;
+    }
 
     /* Recursively call remove on the child node, updating count to reflect
-    * updated number of keys stored
-    */
+     * updated number of keys stored. Error checking happens at the deepest
+     * node without a child.
+     */
     int rv = children[child_idx][0]->remove(hash, key, depth+1, childcount);
     _count -= rv;
 
     /* check if childcount is zero and deallocate child if necessary */
     if (0 == *childcount) {
+        // If we made it here, then the recursion reached a valid leaf node,
+        // or else the trie was repaired. Thus, children[child_idx][0] must
+        // be correct, or the recursion would have failed.  We can ignore the
+        // rest of the duplicates.
         delete children[child_idx][0];
         for (int j = 0; j < ft; ++j)
             children[child_idx][j] = nullptr;
@@ -330,7 +342,7 @@ SplitNode::remove(const HashType& hash, const Key& key, int depth,
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-T *
+const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 SplitNode::read(const HashType& hash, const Key& key, int depth)
 {
@@ -338,9 +350,13 @@ SplitNode::read(const HashType& hash, const Key& key, int depth)
      * child doesn't exist.
      */
     int child_idx = getChild(hash, depth);
-    //SplitNode::childvoter(children[child_idx]);
-    if (nullptr == children[child_idx][0])
-        { return nullptr; }
+
+    if (nullptr == children[child_idx][0]) {
+        childvoter(children[child_idx]);  // verify pointer is really null
+        if (nullptr == children[child_idx][0])
+            return nullptr;
+    }
+    // if pointer is not null, error checking happens at the deepest level
     return children[child_idx][0]->read(hash, key, depth+1);
 }
 
@@ -350,8 +366,8 @@ ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 SplitNode::~SplitNode()
 {
     for (auto &child : children) {
-        childvoter(child);
-            delete child[0];
+        //childvoter(child);    // TODO: this causes a massive slowdown
+        delete child[0];
     }
 }
 
@@ -379,20 +395,20 @@ remove(const Key& key)
 }
 
 
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-T *
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-read(const Key& key)
-{
-    HashType hash = hasher_function(key);
-    return _root.read(hash, key, 0);
-}
+//template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+//T *
+//ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+//read(const Key& key)
+//{
+//    HashType hash = hasher_function(key);
+//    return _root.read(hash, key, 0);
+//}
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-cread(const Key& key)
+read(const Key& key)
 {
     HashType hash = hasher_function(key);
     return _root.read(hash, key, 0);
@@ -415,5 +431,14 @@ size() const
 {
     return _root.getCount();
 }
+
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+void
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+repair(const HashType& path)
+{
+}
+
 
 #endif // RHAMT_HPP
