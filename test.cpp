@@ -9,6 +9,8 @@
 
 #define FAIL(msg)   printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg); return false;
 
+#define FT 1
+
 bool unit_test(bool (*f)(void), std::string name) {
     printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
             name.c_str());
@@ -22,10 +24,10 @@ bool unit_test(bool (*f)(void), std::string name) {
     return true;
 }
 
-bool test_random_sparse(void)
+bool test_random_sparse()
 {
     std::unordered_map<int, int> golden;
-    ReliableHAMT<int, int, 1> rhamt;
+    ReliableHAMT<int, int, FT> rhamt;
     int k, v;
 
     for (int i = 0; i < 1000000; ++i) {
@@ -64,7 +66,7 @@ bool test_random_sparse(void)
 
 bool test_small_rhamt()
 {
-    ReliableHAMT<int, int, 1, uint8_t> rhamt;
+    ReliableHAMT<int, int, FT, uint8_t> rhamt;
 
     // Fill it up, check that the size matches
     for (int i = 0; i < 256; i++) {
@@ -110,7 +112,7 @@ bool test_small_rhamt()
 
 bool test_overwrite()
 {
-    ReliableHAMT<int, int, 1, uint8_t> rhamt;
+    ReliableHAMT<int, int, FT, uint8_t> rhamt;
 
     for (int i = 0; i < 1024; ++i)
         rhamt.insert(i, i);
@@ -134,7 +136,7 @@ bool test_overwrite()
 
 bool test_random_dense()
 {
-    ReliableHAMT<int, int, 1,  uint8_t> rhamt;
+    ReliableHAMT<int, int, FT,  uint8_t> rhamt;
     std::unordered_map<int, int> golden;
 
     for (int i = 0; i < 100000; ++i) {
@@ -160,7 +162,7 @@ bool test_random_dense()
 
 bool test_string_key()
 {
-    ReliableHAMT<std::string, int, 1> hamt;
+    ReliableHAMT<std::string, int, FT> hamt;
 
     hamt.insert("Yabadabadoo!", 5132);
     const int * rv = hamt.read("Yabadabadoo!");
@@ -176,7 +178,7 @@ bool test_string_key()
 
 bool test_missing_read()
 {
-    ReliableHAMT<int, int, 1, uint8_t> hamt;
+    ReliableHAMT<int, int, FT, uint8_t> hamt;
 
     hamt.insert(0, 0);
     const int * rv = hamt.read(256); // hash collision with key 0
@@ -199,7 +201,7 @@ bool test_missing_read()
 
 bool test_missing_remove()
 {
-    ReliableHAMT<int, int, 1, uint8_t> hamt;
+    ReliableHAMT<int, int, FT, uint8_t> hamt;
 
     hamt.insert(0, 0);
     int rv = hamt.remove(512);  // remove non-existant key from existing leaf
@@ -231,7 +233,7 @@ int main(void)
     srand(time(NULL));
 
     unit_test(test_small_rhamt, "test_small_rhamt");
-    // unit_test(test_random_sparse, "test_random_sparse");
+    unit_test(test_random_sparse, "test_random_sparse");
     unit_test(test_overwrite, "test_overwrite");
     unit_test(test_random_dense, "test_random_dense");
     unit_test(test_string_key, "test_string_key");

@@ -70,6 +70,9 @@ private:
         return (hash >> (nlog2chldrn * depth)) & ((1 << nlog2chldrn) - 1);
     }
 
+    /* If an error is detected, repair the trie along that path */
+    void repair(const hash_type& path);
+
     /* Virtual base class */
     class Node {
     public:
@@ -92,12 +95,13 @@ private:
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
 
         /* Redundant arrays of child pointers */
-        std::array<Node *, RHAMT::ft> children [nchldrn];
+        std::array<Node *, ft> children [nchldrn];
+
         /* Number of keys stored in subtree rooted by this node */
         size_t _count;
         /* Calculate index of child node based on `ptrmask` */
         int getChild(const hash_type&, const int depth);
-        // TODO: Figure out this nonsense
+        /* Voting object for comparing redundant data */
         Voter<std::array<Node *, ft>, FT> childvoter =
                                         Voter<std::array<Node *, ft>, FT>();
     public:
@@ -120,10 +124,16 @@ private:
         // Key-value store for data (expected size == 1, list in case
         // of hash collisions)
         std::list<value_type, allocator_type> data;
-
         key_equal key_eq;
+        std::array<hash_type, ft> hashes;
+        /* Voting object for comparing redundant data */
+        Voter<std::array<hash_type, ft>, FT> hashvoter =
+                                     Voter<std::array<hash_type, ft>, FT>();
     public:
-        LeafNode() {};
+        LeafNode(const hash_type& h) {
+            for (int i = 0; i < ft; ++i)
+                hashes[i] = h;
+        }
         ~LeafNode();
 
         int insert(const hash_type&, const key_type&,
@@ -131,7 +141,6 @@ private:
         int remove(const hash_type&, const key_type&, int depth, size_t *);
         mapped_type * read(const hash_type&, const key_type&, int depth);
     };
-
 
     SplitNode _root;
     hasher hasher_function;
@@ -144,11 +153,19 @@ int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
 {
+    /* Verify this node is correct by comparing the provided hash with the
+     * agreed upon value after voting. If the hash is incorrect, we are not
+     * at the correct node, so we must repair the structure.
+     */
+    hashvoter(hashes);
+    if (hash != hashes[0]) {
+        printf("Uh-oh, an error was found, entering repair mode");
+    }
+
     /* Perform a linear search through collision list for a matching key.
     * If found, simply update the value and return, otherwise add the new
     * key-value pair.
     */
-    (void)hash;
     (void)depth;
 
     for (auto & it : data) {
@@ -166,26 +183,34 @@ template <class Key, class T, unsigned FT, class HashType, class Hash, class Pre
 int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::remove(const HashType& hash, const Key& key, int depth,
-    size_t *childcount)
-    {
-        /* Search for matching key-value pair, removing it if found. Update the
-        * parent's `childcount` with the size of the data list.  Return 1 if
-        * a value was successfully removed, otherwise 0.
-        */
-        (void)hash;
-        (void)depth;
-
-        int rv = 0;
-        for (auto & it : data) {
-            if (key_eq(it.first, key)) {
-                data.remove(it);
-                rv = 1;
-                break;
-            }
-        }
-        *childcount = data.size();
-        return rv;
+                 size_t *childcount)
+{
+    /* Verify this node is correct by comparing the provided hash with the
+     * agreed upon value after voting. If the hash is incorrect, we are not
+     * at the correct node, so we must repair the structure.
+     */
+    hashvoter(hashes);
+    if (hash != hashes[0]) {
+        printf("Uh-oh, an error was found, entering repair mode");
     }
+   
+    /* Search for matching key-value pair, removing it if found. Update the
+     * parent's `childcount` with the size of the data list.  Return 1 if
+     * a value was successfully removed, otherwise 0.
+     */
+    (void)depth;
+
+    int rv = 0;
+    for (auto & it : data) {
+        if (key_eq(it.first, key)) {
+            data.remove(it);
+            rv = 1;
+            break;
+        }
+    }
+    *childcount = data.size();
+    return rv;
+}
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
@@ -193,6 +218,15 @@ T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 LeafNode::read(const HashType& hash, const Key& key, int depth)
 {
+    /* Verify this node is correct by comparing the provided hash with the
+     * agreed upon value after voting. If the hash is incorrect, we are not
+     * at the correct node, so we must repair the structure.
+     */
+    hashvoter(hashes);
+    if (hash != hashes[0]) {
+        printf("Uh-oh, an error was found, entering repair mode");
+    }
+
     /* Read a key-value pair from the data list, returning a pointer to the
      * value or a null pointer if no matching key was found.
      */
@@ -241,11 +275,12 @@ SplitNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
      * ordering.
      */
     int child_idx = getChild(hash, depth);
-    SplitNode::childvoter(children[child_idx]);
-    if (children[child_idx][0] == nullptr) {
+    //SplitNode::childvoter(children[child_idx]);
+
+    if (nullptr == children[child_idx][0]) {
         RHAMT::Node * newnode;
         if (depth == (maxdepth-1))
-            { newnode = new RHAMT::LeafNode(); }
+            { newnode = new RHAMT::LeafNode(hash); }
         else
             { newnode = new RHAMT::SplitNode(); }
         for (int j = 0; j < ft; ++j)
@@ -266,32 +301,32 @@ int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 SplitNode::remove(const HashType& hash, const Key& key, int depth,
                   size_t *childcount)
-    {
-        /* Attempt to remove value. If child is not allocated,
-         * simply return 0 to indicate no removal.
-        */
-        int child_idx = getChild(hash, depth);
-        childvoter(children[child_idx]);
-        if (nullptr == children[child_idx][0])
-            return 0;
+{
+    /* Attempt to remove value. If child is not allocated,
+     * simply return 0 to indicate no removal.
+     */
+    int child_idx = getChild(hash, depth);
+    //SplitNode::childvoter(children[child_idx]);
+    if (nullptr == children[child_idx][0])
+        return 0;
 
-        /* Recursively call remove on the child node, updating count to reflect
-        * updated number of keys stored
-        */
-        int rv = children[child_idx][0]->remove(hash, key, depth+1, childcount);
-        _count -= rv;
+    /* Recursively call remove on the child node, updating count to reflect
+    * updated number of keys stored
+    */
+    int rv = children[child_idx][0]->remove(hash, key, depth+1, childcount);
+    _count -= rv;
 
-        /* check if childcount is zero and deallocate child if necessary */
-        if (0 == *childcount) {
-            delete children[child_idx][0];
-            for (int j = 0; j < ft; ++j)
-                children[child_idx][j] = nullptr;
-        }
-
-        /* Update childcount with current node's key count */
-        *childcount = _count;
-        return rv;
+    /* check if childcount is zero and deallocate child if necessary */
+    if (0 == *childcount) {
+        delete children[child_idx][0];
+        for (int j = 0; j < ft; ++j)
+            children[child_idx][j] = nullptr;
     }
+
+    /* Update childcount with current node's key count */
+    *childcount = _count;
+    return rv;
+}
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
@@ -303,7 +338,7 @@ SplitNode::read(const HashType& hash, const Key& key, int depth)
      * child doesn't exist.
      */
     int child_idx = getChild(hash, depth);
-    childvoter(children[child_idx]);
+    //SplitNode::childvoter(children[child_idx]);
     if (nullptr == children[child_idx][0])
         { return nullptr; }
     return children[child_idx][0]->read(hash, key, depth+1);
