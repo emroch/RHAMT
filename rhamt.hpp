@@ -447,7 +447,7 @@ traverse_fast(const HashType& path)
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-traverse_safe(const HashType& path)i
+traverse_safe(const HashType& path)
 {
     using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
     RHAMT::Node* curr_node = &_root;

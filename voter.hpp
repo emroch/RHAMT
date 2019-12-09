@@ -16,7 +16,7 @@ struct Voter {
     {
         using C = typename Container::value_type;
         std::vector<C> vals;
-        std::vector<int> counts;
+        std::vector<size_t> counts;
         bool rv = true;
         // If we have no reliability guarantees, simply return true
 
