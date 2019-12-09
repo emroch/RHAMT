@@ -11,6 +11,7 @@
 // Container has Random Access Iterator
 template <typename Container, int FT>
 struct Voter {
+    static_assert(__cplusplus == 201703, "Requires C++17 support");
     constexpr Voter()  = default;
     bool operator() (Container & c) const
     {
