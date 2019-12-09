@@ -70,6 +70,9 @@ private:
         return (hash >> (nlog2chldrn * depth)) & ((1 << nlog2chldrn) - 1);
     }
 
+    void traverse_fast(const hash_type&);
+    void traverse_safe(const hash_type&);
+
     /* If an error is detected, repair the trie along that path */
     void repair(const hash_type&);
 
@@ -436,8 +439,32 @@ size() const
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+traverse_fast(const HashType& path)
+{
+}
+
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+void
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+traverse_safe(const HashType& path)i
+{
+    using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+    RHAMT::Node* curr_node = &_root;
+
+    
+}
+
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+void
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 repair(const HashType& path)
 {
+    using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+    RHAMT::Node* curr_node = &_root;
+
+    
 }
 
 
