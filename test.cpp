@@ -143,7 +143,7 @@ bool test_random_sparse()
      ReliableHAMT<uint8_t, uint8_t, FT,  uint32_t> rhamt;
      std::unordered_map<uint8_t, uint8_t> golden;
  
-     for (int i = 0; i < 1000000; ++i) {
+     for (int i = 0; i < 100; ++i) {
          int k = rand();
          int v = rand();
          golden[k] = v;

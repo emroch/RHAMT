@@ -1,6 +1,7 @@
 #ifndef _RHAMT_HPP
 #define _RHAMT_HPP
 #include "voter.hpp"
+// #include "injector.hpp"
 #include <array>
 #include <vector>
 #include <list>
@@ -12,6 +13,8 @@
 #include <csignal>
 #include <cassert>
 #include <iostream>
+
+class Injector;
 
 std::jmp_buf env;
 [[noreturn]] void sigsegv_handler(int signal) {
@@ -63,7 +66,7 @@ public:
     const mapped_type * read(const key_type&);
 
 
-private:
+protected:
     /* Number of children for each node */
     static constexpr int nchldrn = 32;
     /* Size of index for child node array */
@@ -174,6 +177,8 @@ private:
 
     SplitNode _root;
     hasher hasher_function;
+
+    friend class Injector;
 };
 
 /**** Leaf Node Implementation ****/
