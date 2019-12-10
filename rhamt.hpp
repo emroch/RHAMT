@@ -365,10 +365,18 @@ SplitNode::fast_traverse(const HashType & hash, const Key & key, omtr val,
                          size_t * ccount)
 {
     const T * retval;
-    static struct sigaction sa = {sigsegv_handler, NULL, 0, 0, NULL};
-    sa.sa_flags = SA_NODEFER | SA_RESETHAND;
+    static struct sigaction sa;
+    static bool init = false;
     if (depth == 0) {
         // Turn On Signal Handler
+        if (!init) {
+            sa.sa_handler = sigsegv_handler;
+            sa.sa_sigaction = NULL;
+            sigemptyset(&sa.sa_mask);
+            sa.sa_flags = SA_NODEFER | SA_RESETHAND;
+            sa.sa_restorer = NULL;
+            init = true;
+        }
         if (0 != sigaction(SIGSEGV, &sa, NULL)) {
             perror("sigaction");
             exit(1);
