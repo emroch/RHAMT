@@ -211,17 +211,22 @@ LeafNode::fast_traverse(const HashType& hash, const Key& key, omtr val,
                         Node * root, size_t * ccount)
 {
     (void)depth;
-    try {
-        hashvoter(hashes);
-    }
-    catch (const std::runtime_error& e) {
-        return root->safe_traverse(hash, key, val, op, 0, root, ccount);
-    }
-    if (hash != hashes[0]) {
-        return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+    if constexpr (FT == 0) {
+        return apply_op(key, val, ccount, op);
     }
     else {
-        return apply_op(key, val, ccount, op);
+        try {
+            hashvoter(hashes);
+        }
+        catch (const std::runtime_error& e) {
+            return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+        }
+        if (hash != hashes[0]) {
+            return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+        }
+        else {
+            return apply_op(key, val, ccount, op);
+        }
     }
 }
 
@@ -371,26 +376,43 @@ SplitNode::fast_traverse(const HashType & hash, const Key & key, omtr val,
                          const optype op, const int depth, Node * root,
                          size_t * ccount)
 {
-    const T * retval;
-    static struct sigaction sa = {sigsegv_handler, (unsigned)NULL, 0,
-                                  0, (unsigned)NULL};
-    sa.sa_flags = SA_NODEFER | SA_RESETHAND;
-    if (depth == 0) {
-        // Turn On Signal Handler
-        if (0 != sigaction(SIGSEGV, &sa, NULL)) {
-            perror("sigaction");
-            exit(1);
+    if constexpr (FT == 0) {
+        int child_idx = getChild(hash, depth);
+        if (nullptr == children[child_idx][0]) {
+            RHAMT::Node * newnode;
+            if (depth == (maxdepth-1))
+                { newnode = new RHAMT::LeafNode(hash); }
+            else
+                { newnode = new RHAMT::SplitNode(); }
+            children[child_idx][0] = newnode;
         }
-
-        if (setjmp(env) > 0) {
-            return root->safe_traverse(hash, key, val, op, 0, root, ccount);
-        }
+        return children[getChild(hash, depth)][0]->fast_traverse(
+                hash, key, val, op, depth+1, root, ccount);
     }
+    else if constexpr (FT > 0) {
+        const T * retval;
+        static struct sigaction sa = {sigsegv_handler, (unsigned)NULL, 0,
+                                      0, (unsigned)NULL};
+        sa.sa_flags = SA_NODEFER | SA_RESETHAND;
+        if (depth == 0) {
+            // Turn On Signal Handler
+            if (0 != sigaction(SIGSEGV, &sa, NULL)) {
+                perror("sigaction");
+                exit(1);
+            }
 
-    retval = children[getChild(hash, depth)][0]->fast_traverse(
-                                    hash, key, val, op, depth+1, root, ccount);
-    signal(SIGSEGV, SIG_DFL);
-    return retval;
+            if (setjmp(env) > 0) {
+                return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+            }
+        }
+
+        retval = children[getChild(hash, depth)][0]->fast_traverse(
+                                        hash, key, val, op, depth+1, root, ccount);
+        signal(SIGSEGV, SIG_DFL);
+        return retval;
+    }
+    printf("WTF\n");
+    exit(1);
 }
 
 

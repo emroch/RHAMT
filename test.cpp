@@ -331,22 +331,22 @@ int main(void)
     TimingTest ttest;
 
     // unit_test(test_small_rhamt, "test_small_rhamt");
-    // unit_test(test_random_sparse, "test_random_sparse");
+     unit_test(test_random_sparse, "test_random_sparse");
     // unit_test(test_overwrite, "test_overwrite");
-    // unit_test(test_random_dense, "test_random_dense");
+     unit_test(test_random_dense, "test_random_dense");
     // unit_test(test_string_key, "test_string_key");
     // unit_test(test_missing_read, "test_missing_read");
     // unit_test(test_missing_remove, "test_missing_remove");
-    ttest.name = "test_timing_access_to_built_rhamt";
-    ttest.test = test_timing_access_built;
-    ttest.numops = 1000000;
-    unit_test(nullptr, "test_timing_fast_reads", true, &ttest);
-    ttest.test = test_timing_build_trie_random;
-    ttest.name = "test_timing_build_trie_random";
-    unit_test(nullptr, "test_timing_build_trie_random", true, &ttest);
-    ttest.test = test_timing_build_trie_sequential;
-    ttest.name = "test_timing_build_trie_sequential";
-    unit_test(nullptr, "test_timing_build_trie_sequential", true, &ttest);
+    // ttest.name = "test_timing_access_to_built_rhamt";
+    // ttest.test = test_timing_access_built;
+    // ttest.numops = 1000000;
+    // unit_test(nullptr, "test_timing_fast_reads", true, &ttest);
+    // ttest.test = test_timing_build_trie_random;
+    // ttest.name = "test_timing_build_trie_random";
+    // unit_test(nullptr, "test_timing_build_trie_random", true, &ttest);
+    // ttest.test = test_timing_build_trie_sequential;
+    // ttest.name = "test_timing_build_trie_sequential";
+    // unit_test(nullptr, "test_timing_build_trie_sequential", true, &ttest);
 
     printf("...Tests Complete\n");
 
