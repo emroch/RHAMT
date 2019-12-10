@@ -6,24 +6,44 @@
 #include <cstdio>
 #include <unordered_map>
 #include <string>
+#include <chrono>
+#include <iostream>
 
 #define FAIL(msg)  {                                            \
     printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg);     \
     return false;                                               \
 } while (0)
 
-#define FT 7
+#define FT 1
 
-bool unit_test(bool (*f)(void), std::string name) {
-    printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
-            name.c_str());
-    bool passed = (*f)();
-    if (!passed) {
-        printf("\033[96;1;1m%s\033[0m \033[31;1;4mfailed\033[0m\n",
+typedef std::chrono::duration<long int, std::ratio<1, 1000000000> > nanos;
+struct TimingTest {
+    std::string name;
+    nanos (*test)(void);
+    size_t numops;
+};
+
+bool unit_test(bool (*f)(void), std::string name,
+               bool performance=false, TimingTest *ttest=nullptr) {
+
+    if (!performance) {
+        printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
                 name.c_str());
-        return false;
+        bool passed = (*f)();
+        if (!passed) {
+            printf("\033[96;1;1m%s\033[0m \033[31;1;4mfailed\033[0m\n",
+                    name.c_str());
+            return false;
+        }
+        printf("\033[96;1;1m%s \033[32;1;4mpassed\033[0m\n", name.c_str());
     }
-    printf("\033[96;1;1m%s \033[32;1;4mpassed\033[0m\n", name.c_str());
+    else if (performance) {
+        printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
+                ttest->name.c_str());
+        nanos dur = ttest->test();
+        printf("\033[96;1;1m%s \033[32;1;4mfinished in %lu ns / per op\033[0m\n",
+                ttest->name.c_str(), dur.count() / ttest->numops);
+    }
     return true;
 }
 
@@ -231,18 +251,102 @@ bool test_random_sparse()
 //     return true;
 // }
 
+
+ nanos test_timing_access_built()
+{
+    // Get Duration of 1,000,000 accesses to an already built Trie
+    ReliableHAMT<int, int, FT> rhamt;
+    static constexpr int s = 1000000;
+    for (int i = 0; i < s; ++i) {
+        rhamt.insert(s, s);
+    }
+
+    auto lstime = std::chrono::high_resolution_clock::now();
+    for (volatile int i = 0; i < s; ++i) ;
+    auto letime = std::chrono::high_resolution_clock::now();
+    auto ldur = letime - lstime;
+    // printf("loop duration: %lu nanos / iteration\n", ldur.count() / s);
+    // Loop duration is ~ 1 ns / iter
+    
+    auto stime = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < s; ++i) {
+        volatile int k = *rhamt.read(s);
+        (void)k;
+    }
+    auto etime = std::chrono::high_resolution_clock::now();
+
+    auto dur = etime - stime;
+    return dur - ldur;;
+}
+
+nanos test_timing_build_trie_random()
+{
+    ReliableHAMT<int, int, FT> rhamt;
+    static constexpr int s = 1000000;
+    volatile int k;
+
+    auto lstime = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < s; ++i) {
+        k = rand();
+        // rhamt.insert(s, s);
+    }
+    (void)k;
+    auto letime = std::chrono::high_resolution_clock::now();
+    auto ldur = letime - lstime;
+
+    auto stime = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < s; ++i) {
+        rhamt.insert(rand(), s);
+    }
+    auto etime = std::chrono::high_resolution_clock::now();
+    auto dur = etime - stime;
+    return dur - ldur;
+}
+
+nanos test_timing_build_trie_sequential()
+{
+    ReliableHAMT<int, int, FT> rhamt;
+    static constexpr int s = 1000000;
+    volatile int k;
+
+    auto lstime = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < s; ++i) k = i;
+    (void)k;
+    auto letime = std::chrono::high_resolution_clock::now();
+    auto ldur = letime - lstime;
+
+    auto stime = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < s; ++i) {
+        rhamt.insert(s, s);
+    }
+    auto etime = std::chrono::high_resolution_clock::now();
+    auto dur = etime - stime;
+    return dur - ldur;
+}
+
 int main(void)
 {
     printf("Beginning Testing...\n");
     srand(time(NULL));
+    TimingTest ttest;
 
     // unit_test(test_small_rhamt, "test_small_rhamt");
     // unit_test(test_random_sparse, "test_random_sparse");
     // unit_test(test_overwrite, "test_overwrite");
-    unit_test(test_random_dense, "test_random_dense");
+    // unit_test(test_random_dense, "test_random_dense");
     // unit_test(test_string_key, "test_string_key");
     // unit_test(test_missing_read, "test_missing_read");
     // unit_test(test_missing_remove, "test_missing_remove");
+    ttest.name = "test_timing_access_to_built_rhamt";
+    ttest.test = test_timing_access_built;
+    ttest.numops = 1000000;
+    unit_test(nullptr, "test_timing_fast_reads", true, &ttest);
+    ttest.test = test_timing_build_trie_random;
+    ttest.name = "test_timing_build_trie_random";
+    unit_test(nullptr, "test_timing_build_trie_random", true, &ttest);
+    ttest.test = test_timing_build_trie_sequential;
+    ttest.name = "test_timing_build_trie_sequential";
+    unit_test(nullptr, "test_timing_build_trie_sequential", true, &ttest);
 
     printf("...Tests Complete\n");
 
