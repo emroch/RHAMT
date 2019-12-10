@@ -7,7 +7,23 @@
 #include <bitset>
 #include <cstdint>
 #include <functional>
+#include <stdexcept>
+#include <csetjmp>
+#include <csignal>
+#include <cassert>
+#include <iostream>
 
+std::jmp_buf env;
+[[noreturn]] void sigsegv_handler(int signal) {
+    printf("in handler\n");
+    fflush(stdout);
+    if (signal == SIGSEGV) {
+        longjmp(env, 1);
+    }
+    else {
+        exit(1);
+    }
+}
 
 template <class Key, class T, unsigned FT = 0, class HashType = uint32_t,
           class Hash = std::hash<Key>, class Pred = std::equal_to<Key>,
@@ -39,7 +55,7 @@ public:
     bool   empty() const;
     size_t size() const;
 
-    int insert(const key_type&, const mapped_type&);
+    const mapped_type * insert(const key_type&, const mapped_type&);
     // int insert(const value_type&);
 
     int remove(const key_type&);
@@ -73,29 +89,26 @@ private:
     void traverse_fast(const hash_type&);
     void traverse_safe(const hash_type&);
 
-    /* If an error is detected, repair the trie along that path */
-    void repair(const hash_type&);
-
     /* Virtual base class */
     class Node {
     public:
+        enum class optype { read, remove, insert };
+        using omtr = std::optional<std::reference_wrapper<const mapped_type>>;
         virtual ~Node() {};
-        // Returns 1 if a new key is inserted or 0 if key is updated
-        virtual int insert(const hash_type&, const key_type&,
-                           const mapped_type&, int depth) = 0;
-        // Remove a value from HAMT with given hash and key, returning
-        // 1 if a leaf is destroyed, otherwise 0
-        virtual int remove(const hash_type&, const key_type&,
-                           int depth, size_t *) = 0;
-        // Retrieve a value from HAMT with given hash and key
-        virtual const mapped_type * read(const hash_type&, const key_type&,
-                                   int depth) = 0;
+        virtual const mapped_type * fast_traverse(
+                const hash_type&, const key_type&, omtr, const optype,
+                const int depth, Node * root, size_t * child_count) = 0;
+        virtual const mapped_type * safe_traverse(
+                const hash_type&, const key_type&, omtr, const optype,
+                const int depth, Node * root, size_t * child_count) = 0;
     };
 
     class SplitNode : public ReliableHAMT::Node {
     private:
         /* Avoid typing long gross template type multiple times */
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+        using optype = typename RHAMT::Node::optype;
+        using omtr = std::optional<std::reference_wrapper<const mapped_type>>;
 
         /* Redundant arrays of child pointers */
         std::array<Node *, ft> children [nchldrn];
@@ -105,8 +118,10 @@ private:
         /* Calculate index of child node based on `ptrmask` */
         int getChild(const hash_type&, const int depth);
         /* Voting object for comparing redundant data */
-        Voter<std::array<Node *, ft>, FT> childvoter =
+        static constexpr Voter<std::array<Node *, ft>, FT> childvoter =
                                         Voter<std::array<Node *, ft>, FT>();
+
+
     public:
         SplitNode() : _count(0) {
             for (int i = 0; i < nchldrn; ++i)
@@ -114,11 +129,13 @@ private:
                     children[i][j] = nullptr;
         }
         ~SplitNode();
+        const mapped_type * fast_traverse(
+            const hash_type&, const key_type&, omtr, const optype,
+            const int depth, Node * root, size_t * child_count);
+        const mapped_type * safe_traverse(
+            const hash_type&, const key_type&, omtr, const optype,
+            const int depth, Node * root, size_t * child_count);
 
-        int insert(const hash_type&, const key_type&,
-                   const mapped_type&, int depth);
-        int remove(const hash_type&, const key_type&, int depth, size_t *);
-        const mapped_type * read(const hash_type&, const key_type&, int depth);
         size_t getCount() const { return _count; };
     };
 
@@ -126,6 +143,8 @@ private:
     private:
         /* Avoid typing long gross template type multiple times */
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
+        using optype = typename RHAMT::Node::optype;
+        using omtr = std::optional<std::reference_wrapper<const mapped_type>>;
 
         // Key-value store for data (expected size == 1, list in case
         // of hash collisions)
@@ -133,8 +152,13 @@ private:
         key_equal key_eq;
         std::array<hash_type, ft> hashes;
         /* Voting object for comparing redundant data */
-        Voter<std::array<hash_type, ft>, FT> hashvoter =
+        static constexpr Voter<std::array<hash_type, ft>, FT> hashvoter =
                                      Voter<std::array<hash_type, ft>, FT>();
+        const mapped_type * insert(const key_type&, omtr);
+        int remove(const key_type&, size_t *);
+        const mapped_type * read(const key_type&);
+        const mapped_type * apply_op(const key_type &, omtr,
+                                     size_t * ccount, const optype);
     public:
         LeafNode(const hash_type& h) {
             for (int i = 0; i < ft; ++i)
@@ -142,10 +166,12 @@ private:
         }
         ~LeafNode();
 
-        int insert(const hash_type&, const key_type&,
-                   const mapped_type&, int depth);
-        int remove(const hash_type&, const key_type&, int depth, size_t *);
-        const mapped_type * read(const hash_type&, const key_type&, int depth);
+        const mapped_type * fast_traverse(
+            const hash_type&, const key_type&, omtr, const optype,
+            const int depth, Node * root, size_t * child_count);
+        const mapped_type * safe_traverse(
+            const hash_type&, const key_type&, omtr, const optype,
+            const int depth, Node * root, size_t * child_count);
     };
 
     SplitNode _root;
@@ -153,58 +179,102 @@ private:
 };
 
 /**** Leaf Node Implementation ****/
-
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-int
+const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-LeafNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
+LeafNode::safe_traverse(const HashType& hash, const Key& key, omtr val,
+                        const optype op, const int depth,
+                        Node * root, size_t * ccount)
 {
-    (void)depth;
-
     /* Verify this node is correct by comparing the provided hash with the
      * agreed upon value after voting. If the hash is incorrect, we are not
      * at the correct node, so we must repair the structure.
      */
+    (void)depth;
     hashvoter(hashes);
     if (hash != hashes[0]) {
-        printf("Uh-oh, an error was found, entering repair mode");
+        throw("Uh-oh, an unrepairable error was found in leaf node");
     }
+    return apply_op(key, val, ccount, op);
+}
 
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+const T *
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+LeafNode::fast_traverse(const HashType& hash, const Key& key, omtr val,
+                        const optype op, const int depth,
+                        Node * root, size_t * ccount)
+{
+    (void)depth;
+    try {
+        hashvoter(hashes);
+    }
+    catch (const std::runtime_error& e) {
+        return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+    }
+    if (hash != hashes[0]) {
+        return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+    }
+    else {
+        return apply_op(key, val, ccount, op);
+    }
+}
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+const T *
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+LeafNode::apply_op(const Key &key, omtr val,
+                   size_t * ccount, const optype op)
+{
+    const T * retval = nullptr;
+    switch (op) {
+        case RHAMT::Node::optype::insert:
+            retval = this->insert(key, val);
+            break;
+        case RHAMT::Node::optype::remove:
+            retval = reinterpret_cast<const T*>(this->remove(key, ccount));
+            break;
+        case RHAMT::Node::optype::read:
+            retval = this->read(key);
+            break;
+        default:
+            throw "invalid operation";
+    }
+    return retval;
+}
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+const T *
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+LeafNode::insert(const Key& key, omtr val)
+{
     /* Normally, we don't expect multiple keys to map to the same hash, since
      * most key types have a strong hash function available. If a collision
      * does occur, we must search through the list to find the matching key.
      */
+    if (!val.has_value())
+        throw "wtf why does omtr not have value in insert?!";
+
+    const T& tval = val.value().get();
+
     for (auto & it : data) {
         if (key_eq(it.first, key)) {
-            it.second = val;
-            return 0;
+            it.second = tval;
+            return &it.second;
         }
     }
 
     /* If no match was found, insert the new key-value pair */
-    data.push_back(std::make_pair(key, val));
-    return 1;
+    data.push_back(std::make_pair(key, tval));
+    return &data.back().second;
 }
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 int
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-LeafNode::remove(const HashType& hash, const Key& key, int depth,
-                 size_t *childcount)
+LeafNode::remove(const Key& key, size_t *childcount)
 {
-    (void)depth;
-
-    /* Verify this node is correct by comparing the provided hash with the
-     * agreed upon value after voting. If the hash is incorrect, we are not
-     * at the correct node, so we must repair the structure.
-     */
-    hashvoter(hashes);
-    if (hash != hashes[0]) {
-        printf("Uh-oh, an error was found, entering repair mode");
-        //RHAMT::repair(hash);
-    }
-   
     /* Search for matching key-value pair, removing it if found. Update the
      * parent's `childcount` with the size of the data list.  Return 1 if
      * a value was successfully removed, otherwise 0.
@@ -217,7 +287,9 @@ LeafNode::remove(const HashType& hash, const Key& key, int depth,
             break;
         }
     }
-    *childcount = data.size();
+
+    if (childcount)
+        *childcount = data.size();
     return rv;
 }
 
@@ -225,21 +297,8 @@ LeafNode::remove(const HashType& hash, const Key& key, int depth,
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-LeafNode::read(const HashType& hash, const Key& key, int depth)
+LeafNode::read(const Key& key)
 {
-    (void)hash;
-    (void)depth;
-
-    /* Verify this node is correct by comparing the provided hash with the
-     * agreed upon value after voting. If the hash is incorrect, we are not
-     * at the correct node, so we must repair the structure.
-     */
-    hashvoter(hashes);
-    if (hash != hashes[0]) {
-        printf("Uh-oh, an error was found, entering repair mode");
-        //RHAMT::repair(hash);
-    }
-
     /* Read a key-value pair from the data list, returning a pointer to the
      * value or a null pointer if no matching key was found.
      */
@@ -254,12 +313,106 @@ LeafNode::read(const HashType& hash, const Key& key, int depth)
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-LeafNode::~LeafNode()
-{
-}
+LeafNode::~LeafNode() { }
 
 
 /**** Split Node Implementation ****/
+
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+const T *
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+SplitNode::safe_traverse(const HashType & hash, const Key & key, omtr val,
+                         const optype op, const int depth, Node * root,
+                         size_t * ccount)
+{
+    int child_idx = getChild(hash, depth);
+    childvoter(children[child_idx]);
+    printf("Safe Traverse: depth %d\n", depth);
+    fflush(stdout);
+    if (nullptr == children[child_idx][0]) {
+        RHAMT::Node * newnode;
+        if (depth == (maxdepth-1))
+            { newnode = new RHAMT::LeafNode(hash); }
+        else
+            { newnode = new RHAMT::SplitNode(); }
+        for (int j = 0; j < ft; ++j)
+            children[child_idx][j] = newnode;
+    }
+    const T * rv = children[child_idx][0]->safe_traverse(
+                                    hash, key, val, op, depth+1, root, ccount);
+
+    uintptr_t crv = reinterpret_cast<uintptr_t>(rv);
+    switch (op) {
+        case RHAMT::Node::optype::insert:
+            _count += crv;
+            break;
+        case RHAMT::Node::optype::remove:
+            _count -= crv;
+            *ccount = _count;
+            break;
+        case RHAMT::Node::optype::read:
+            break;
+        default:
+            throw "WTF???";
+    }
+
+    return rv;
+}
+
+
+template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
+const T *
+ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
+SplitNode::fast_traverse(const HashType & hash, const Key & key, omtr val,
+                         const optype op, const int depth, Node * root,
+                         size_t * ccount)
+{
+    const T * retval;
+    static int count = 0;
+    static struct sigaction sa = {sigsegv_handler, NULL, 0, 0, NULL};
+    struct sigaction sabuf;
+    printf("Fast Traverse: depth %d\n", depth);
+    std::cout << hash << " " << key << " " << root << std::endl;
+    fflush(stdout);
+    if (depth == 0) {
+        // Turn On Signal Handler
+        if (0 != sigaction(SIGSEGV, &sa, NULL)) {
+            perror("sigaction");
+            exit(1);
+        }
+        // signal(SIGSEGV, sigsegv_handler);
+        printf("count: %d\n", count++);
+        fflush(stdout);
+        if (setjmp(env) > 0) {
+            printf("calling safe traverse\n");
+            fflush(stdout);
+            signal(SIGSEGV, SIG_DFL);
+            return root->safe_traverse(hash, key, val, op, 0, root, ccount);
+        }
+        else {
+            printf("Howdy!\n");
+            fflush(stdout);
+        }
+    }
+
+    if (0 != sigaction(SIGSEGV, &sa, &sabuf)) {
+        perror("sigaction");
+        exit(1);
+    }
+    assert(sa.sa_sigaction == sabuf.sa_sigaction);
+
+    retval = children[getChild(hash, depth)][0]->fast_traverse(
+                                    hash, key, val, op, depth+1, root, ccount);
+
+    if (depth == 0) {
+        // Turn Off Signal Handler
+        signal(SIGSEGV, SIG_DFL);
+    }
+
+    return retval;
+}
+
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 inline int
@@ -268,99 +421,6 @@ SplitNode::getChild(const HashType& hash, const int depth)
 {
     HashType shash = ReliableHAMT::subhash(hash, depth);
     return shash;
-}
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-int
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-SplitNode::insert(const HashType& hash, const Key& key, const T& val, int depth)
-{
-    int child_idx = getChild(hash, depth);
-
-    if (nullptr == children[child_idx][0]) {
-        // vote and check again before modifying the structure to ensure
-        // the child pointer really is null.
-        childvoter(children[child_idx]);
-        if (nullptr == children[child_idx][0]) {
-            RHAMT::Node * newnode;
-            if (depth == (maxdepth-1))
-                { newnode = new RHAMT::LeafNode(hash); }
-            else
-                { newnode = new RHAMT::SplitNode(); }
-            for (int j = 0; j < ft; ++j)
-                children[child_idx][j] = newnode;
-        }
-    }
-
-    // Assume the first pointer is correct (or was just created) and insert
-    // new value recursively. Total correctness will be checked at the leaf.
-    int rv = children[child_idx][0]->insert(hash, key, val, depth+1);
-    _count += rv;
-    return rv;
-}
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-int
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-SplitNode::remove(const HashType& hash, const Key& key, int depth,
-                  size_t *childcount)
-{
-    /* Attempt to remove value. If child is not allocated,
-     * simply return 0 to indicate no removal.
-     */
-    int child_idx = getChild(hash, depth);
-
-    // If child is not allocated, double check (lest we lose track of data)
-    // and return zero if there is really no child
-    if (nullptr == children[child_idx][0]) {
-        childvoter(children[child_idx]);
-        if (nullptr == children[child_idx][0])
-            return 0;
-    }
-
-    /* Recursively call remove on the child node, updating count to reflect
-     * updated number of keys stored. Error checking happens at the deepest
-     * node without a child.
-     */
-    int rv = children[child_idx][0]->remove(hash, key, depth+1, childcount);
-    _count -= rv;
-
-    /* check if childcount is zero and deallocate child if necessary */
-    if (0 == *childcount) {
-        // If we made it here, then the recursion reached a valid leaf node,
-        // or else the trie was repaired. Thus, children[child_idx][0] must
-        // be correct, or the recursion would have failed.  We can ignore the
-        // rest of the duplicates.
-        delete children[child_idx][0];
-        for (int j = 0; j < ft; ++j)
-            children[child_idx][j] = nullptr;
-    }
-
-    /* Update childcount with current node's key count */
-    *childcount = _count;
-    return rv;
-}
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-const T *
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-SplitNode::read(const HashType& hash, const Key& key, int depth)
-{
-    /* Recursively read from the appropriate child, returning NULL if the
-     * child doesn't exist.
-     */
-    int child_idx = getChild(hash, depth);
-
-    if (nullptr == children[child_idx][0]) {
-        childvoter(children[child_idx]);  // verify pointer is really null
-        if (nullptr == children[child_idx][0])
-            return nullptr;
-    }
-    // if pointer is not null, error checking happens at the deepest level
-    return children[child_idx][0]->read(hash, key, depth+1);
 }
 
 
@@ -378,12 +438,18 @@ SplitNode::~SplitNode()
 /**** ReliableHAMT Implementation ****/
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-int
+const T *
 ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-insert(const Key& key, const T& val)
+insert(const Key& key, const T& tval)
 {
     size_t hash = hasher_function(key);
-    return _root.insert(hash, key, val, 0);
+    size_t cc;
+    const mapped_type * rv;
+    auto val = std::optional<std::reference_wrapper<const T>>(
+            std::reference_wrapper<const T>(tval));
+    rv = _root.fast_traverse(
+            hash, key, val, Node::optype::insert, 0, &_root, &cc);
+    return rv;
 }
 
 
@@ -393,19 +459,11 @@ ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 remove(const Key& key)
 {
     HashType hash = hasher_function(key);
-    size_t childcount;
-    return _root.remove(hash, key, 0, &childcount);
+    size_t cc;
+    auto val = std::optional<std::reference_wrapper<const T>>();
+    return reinterpret_cast<uintptr_t>(_root.fast_traverse(
+                hash, key, val, Node::optype::remove, 0, &_root, &cc));
 }
-
-
-//template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-//T *
-//ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-//read(const Key& key)
-//{
-//    HashType hash = hasher_function(key);
-//    return _root.read(hash, key, 0);
-//}
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
@@ -414,7 +472,12 @@ ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
 read(const Key& key)
 {
     HashType hash = hasher_function(key);
-    return _root.read(hash, key, 0);
+    size_t cc;
+    const mapped_type * rv;
+    auto val = std::optional<std::reference_wrapper<const T>>();
+    rv = _root.fast_traverse(
+            hash, key, val, Node::optype::read, 0, &_root, &cc);
+    return rv;
 }
 
 
@@ -434,38 +497,4 @@ size() const
 {
     return _root.getCount();
 }
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-void
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-traverse_fast(const HashType& path)
-{
-}
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-void
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-traverse_safe(const HashType& path)
-{
-    using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
-    RHAMT::Node* curr_node = &_root;
-
-    
-}
-
-
-template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
-void
-ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>::
-repair(const HashType& path)
-{
-    using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
-    RHAMT::Node* curr_node = &_root;
-
-    
-}
-
-
 #endif // RHAMT_HPP

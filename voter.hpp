@@ -1,6 +1,7 @@
 #ifndef _VOTER_HPP
 #define _VOTER_HPP
 #include <vector>
+#include <stdexcept>
 
 #if __cplusplus == 201703L
 #define constif if constexpr
@@ -56,7 +57,7 @@ struct Voter {
 
             rv = false;
             // Fuck it
-            throw "Unrecoverable Failure Exception";
+            throw std::runtime_error("no consensus found");
         }
 done:
         return rv;
