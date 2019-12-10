@@ -365,9 +365,9 @@ SplitNode::fast_traverse(const HashType & hash, const Key & key, omtr val,
                          size_t * ccount)
 {
     const T * retval;
-    static struct sigaction sa = {sigsegv_handler, NULL, 0, 0, NULL};
+    static struct sigaction sa = {sigsegv_handler, (unsigned)NULL, 0, 0,
+                                  (unsigned)NULL};
     sa.sa_flags = SA_NODEFER | SA_RESETHAND;
-    static bool init = false;
     if (depth == 0) {
         // Turn On Signal Handler
         if (0 != sigaction(SIGSEGV, &sa, NULL)) {
