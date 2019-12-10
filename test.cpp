@@ -30,7 +30,7 @@ bool test_random_sparse()
     ReliableHAMT<int, int, FT> rhamt;
     int k, v;
 
-    for (int i = 0; i < 1000000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         k = rand();
         v = rand();
         golden[k] = v;
