@@ -38,7 +38,7 @@ public:
     // specified, a random value is assinged. The first `count` duplicates
     // will be overwritten
     void set_child(const HashType hash, const int depth,
-                   unsigned child, std::optional<uintptr_t> val,
+                   unsigned child, std::optional<void*> val,
                    unsigned count);
     
     // Set the stored hash in the given leaf node to the provided value.
@@ -72,9 +72,8 @@ swap_children_local(const HashType hash, const int depth,
     if (depth >= RHAMT::maxdepth)
         throw std::out_of_range("Depth must be < maxdepth");
 
-    int level = 0;
     SN* curr_node = &rhamt._root;
-    while (level < depth) {
+    for (int level = 0; level < depth; ++level) {
         HashType shash = RHAMT::subhash(hash, level);
         curr_node = reinterpret_cast<SN*>(curr_node->children[shash][0]);
     }
@@ -90,26 +89,21 @@ swap_children_other(const HashType hash1, const int depth1,
                               const HashType hash2, const int depth2,
                               const unsigned child)
 {
-    (void)hash1;
-    (void)hash2;
-
     if (child >= RHAMT::nchldrn)
         throw std::out_of_range("Child index must be < 32");
     if (depth1 >= RHAMT::maxdepth || depth2 >= RHAMT::maxdepth)
         throw std::out_of_range("Depth must be < maxdepth");
 
-    int level = 0;
-    Node* curr_node_a = rhamt._root;
-    while (level < depth1) {
+    SN* curr_node_a = &rhamt._root;
+    for (int level = 0; level < depth1; ++level) {
         HashType shash = RHAMT::subhash(hash1, level);
-        curr_node_a = curr_node_a->children[shash][0];
+        curr_node_a = reinterpret_cast<SN*>(curr_node_a->children[shash][0]);
     }
 
-    level = 0;
-    Node* curr_node_b = rhamt._root;
-    while (level < depth2) {
+    SN* curr_node_b = &rhamt._root;
+    for (int level = 0; level < depth2; ++level) {
         HashType shash = RHAMT::subhash(hash2, level);
-        curr_node_b = curr_node_b->children[shash][0];
+        curr_node_b = reinterpret_cast<SN*>(curr_node_b->children[shash][0]);
     } 
 
     std::swap(curr_node_a->children[child][0], curr_node_b->children[child][0]);
@@ -120,23 +114,22 @@ template <class Key, class T, unsigned FT, class HashType, class Hash, class Pre
 void
 Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
 set_child(const HashType hash, const int depth, unsigned child,
-                    std::optional<uintptr_t> val, unsigned count)
+                    std::optional<void*> val, unsigned count)
 {
     if (child >= RHAMT::nchldrn)
         throw std::out_of_range("Child index must be < 32");
     if (depth >= RHAMT::maxdepth)
         throw std::out_of_range("Depth must be < maxdepth");
 
-    int level = 0;
-    Node* curr_node = rhamt._root;
-    while (level < depth) {
+    SN* curr_node = &rhamt._root;
+    for (int level = 0; level < depth; ++level) {
         HashType shash = RHAMT::subhash(hash, level);
-        curr_node = curr_node->children[shash][0];
+        curr_node = reinterpret_cast<SN*>(curr_node->children[shash][0]);
     }
 
-    Node* rand_ptr = (Node*)rand();
-    for (int i = 0; i < count; ++i)
-        curr_node->children[child][i] = val.value_or(rand_ptr);
+    Node* rand_ptr = reinterpret_cast<Node*>(rand());
+    for (unsigned i = 0; i < count; ++i)
+        curr_node->children[child][i] = (Node*)val.value_or(rand_ptr);
 }
 
 
@@ -147,15 +140,15 @@ set_hash(const HashType hash, std::optional<HashType> val,
                    unsigned count)
 {
     int level = 0;
-    Node* curr_node = rhamt._root;
-    while (level < RHAMT::maxdepth) {
+    SN* curr_node = &rhamt._root;
+    for (int level = 0; level < RHAMT::maxdepth; ++level) {
         HashType shash = RHAMT::subhash(hash, level);
-        curr_node = curr_node->children[shash][0];
+        curr_node = reinterpret_cast<SN*>(curr_node->children[shash][0]);
     }
 
     HashType rand_hash = (HashType)rand();
     for (int i = 0; i < count; ++i)
-        curr_node->hash[i] = val.value_or(rand_hash);
+       reinterpret_cast<LN*>(curr_node)->hash[i] = val.value_or(rand_hash);
 }
 
 
