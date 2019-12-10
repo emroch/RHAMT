@@ -2,6 +2,8 @@
 #define _INJECTOR_HPP
 
 #include "rhamt.hpp"
+#include <stdexcept>
+#include <cstdlib>
 
 template<class Key, class T, unsigned FT, class HashType,
          class Hash, class Pred, class Alloc>
@@ -13,84 +15,134 @@ class Injector {
 
 public:
     RHAMT rhamt;
+    
+    Injector() { srand(time(NULL)); rhamt = RHAMT<int, int, 5, uint16_t>(); }
+
     // Traverse to `depth` along path given by `hash` and swap the `first`
     // and `second` child pointers (only the first duplicate) to test
     // fast_traverse's ability to detect incorrect leaf node
-    void swap_children_local(const HashType hash, const int depth,
+    void swap_children_local(RHAMT rhamt, const HashType hash, const int depth,
                              const unsigned first, const unsigned second);
     
     // Traverse to `depth1` along path `hash1` and to `depth2` along path
     // `hash2` and swap the `child`th pointer (first duplicate only) to test
     // more severe structural mistakes (i.e. skipping levels)
-    void swap_children_other(const HashType hash1, const int depth1,
+    void swap_children_other(RHAMT rhamt, const HashType hash1, const int depth1,
                              const HashType hash2, const int depth2,
                              unsigned child);
 
     // Set the selected child pointer to the given value. If `val` is not
     // specified, a random value is assinged. The first `count` duplicates
     // will be overwritten
-    void set_child(const HashType hash, const int depth, unsigned child,
-                   std::optional<uintptr_t> val, unsigned count);
+    void set_child(RHAMT rhamt, const HashType hash, const int depth,
+                   unsigned child, std::optional<uintptr_t> val,
+                   unsigned count);
     
     // Set the stored hash in the given leaf node to the provided value.
     // If `val` is not set, use a random value. Overwrites the first `count`
     // duplicates.
-    void set_hash(const HashType hash, std::optional<HashType> val,
-                  unsigned count);
+    void set_hash(RHAMT rhamt, const HashType hash,
+                  std::optional<HashType> val, unsigned count);
 
 };
+
+
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
-swap_children_local(const HashType hash, const int depth,
+swap_children_local(RHAMT rhamt, const HashType hash, const int depth,
                               const unsigned first, const unsigned second)
 {
-    (void)hash;
-    (void)depth;
-    (void)first;
-    (void)second;
+    if (first >= RHAMT::nchldrn || second >= RHAMT::nchldrn)
+        throw std::out_of_range("Child index must be < 32");
+    if (depth >= RHAMT::maxdepth)
+        throw std::out_of_range("Depth must be < maxdepth");
+
+    int level = 0;
+    Node* curr_node = rhampt._root;
+    while (level < depth) {
+        HashType shash = RHAMT::subhash(hash, level);
+        curr_node = curr_node->children[shash][0];
+    }
+
+    std::swap(curr_node->children[first][0], curr_node->children[second][0]);
 }
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
-swap_children_other(const HashType hash1, const int depth1,
+swap_children_other(RHAMT rhamt, const HashType hash1, const int depth1,
                               const HashType hash2, const int depth2,
                               const unsigned child)
 {
     (void)hash1;
-    (void)depth1;
     (void)hash2;
-    (void)depth2;
-    (void)child;
+
+    if (child >= RHAMT::nchldrn)
+        throw std::out_of_range("Child index must be < 32");
+    if (depth1 >= RHAMT::maxdepth || depth2 >= RHAMT::maxdepth)
+        throw std::out_of_range("Depth must be < maxdepth");
+
+    int level = 0;
+    Node* curr_node_a = rhampt._root;
+    while (level < depth1) {
+        HashType shash = RHAMT::subhash(hash1, level);
+        curr_node_a = curr_node_a->children[shash][0];
+    }
+
+    level = 0;
+    Node* curr_node_b = rhampt._root;
+    while (level < depth2) {
+        HashType shash = RHAMT::subhash(hash2, level);
+        curr_node_b = curr_node_b->children[shash][0];
+    } 
+
+    std::swap(curr_node_a->children[child][0], curr_node_b->children[child][0]);
 }
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
-set_child(const HashType hash, const int depth, unsigned child,
+set_child(RHAMT rhamt, const HashType hash, const int depth, unsigned child,
                     std::optional<uintptr_t> val, unsigned count)
 {
-    (void)hash;
-    (void)depth;
-    (void)child;
-    (void)val;
-    (void)count;
+    if (child >= RHAMT::nchldrn)
+        throw std::out_of_range("Child index must be < 32");
+    if (depth >= RHAMT::maxdepth)
+        throw std::out_of_range("Depth must be < maxdepth");
+
+    int level = 0;
+    Node* curr_node = rhampt._root;
+    while (level < depth) {
+        HashType shash = RHAMT::subhash(hash, level);
+        curr_node = curr_node->children[shash][0];
+    }
+
+    Node* rand_ptr = (Node*)rand();
+    for (int i = 0; i < count; ++i)
+        curr_node->children[child][i] = val.value_or(rand_ptr);
 }
 
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
 Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
-set_hash(const HashType hash, std::optional<HashType> val,
+set_hash(RHAMT rhamt, const HashType hash, std::optional<HashType> val,
                    unsigned count)
 {
-    (void)hash;
-    (void)val;
-    (void)count;
+    int level = 0;
+    Node* curr_node = rhampt._root;
+    while (level < RHAMT:maxdepth) {
+        HashType shash = RHAMT::subhash(hash, level);
+        curr_node = curr_node->children[shash][0];
+    }
+
+    HashType rand_hash = (HashType)rand();
+    for (int i = 0; i < count; ++i)
+        curr_node->hash[i] = val.value_or(rand_hash);
 }
 
 

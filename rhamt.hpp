@@ -181,7 +181,7 @@ protected:
     SplitNode _root;
     hasher hasher_function;
 
-    friend class Injector;
+    friend class Injector<Key, T, FT, HashType, Hash, Pred, Alloc>;
 };
 
 /**** Leaf Node Implementation ****/
