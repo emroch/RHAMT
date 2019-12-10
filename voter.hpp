@@ -1,67 +1,54 @@
 #ifndef _VOTER_HPP
 #define _VOTER_HPP
-#include <vector>
+#include <array>
 #include <stdexcept>
-
-#if __cplusplus == 201703L
-#define constif if constexpr
-#else
-#define constif if
-#endif
 
 // Container has Random Access Iterator
 template <typename Container, int FT>
 struct Voter {
-    static_assert(__cplusplus == 201703, "Requires C++17 support");
-    constexpr Voter()  = default;
+    static_assert(__cplusplus == 201703, "Requires -std=c++17 compile option");
+    constexpr Voter() = default;
+
     bool operator() (Container & c) const
     {
-        using C = typename Container::value_type;
-        std::vector<C> vals;
-        std::vector<size_t> counts;
-        bool rv = true;
-        // If we have no reliability guarantees, simply return true
-
-        constif (0 == FT)
+        static constexpr bool rv = true;
+        if constexpr (0 == FT)
             { goto done; }
 
-        else constif (FT) {
+        else if constexpr (FT) {
+            using C = typename Container::value_type;
+            std::array<C, 2*FT+1> vals;
+            std::array<size_t, 2*FT+1> counts;
+            size_t insert_pos = 0;
             for (const auto &cit : c) {
-                for (auto vit = vals.cbegin(); vit != vals.cend(); vit++) {
-                    if (cit == *vit) {
-                        counts[vit - vals.cbegin()] += 1;
+                for (size_t vit = 0; vit != insert_pos; vit++) {
+                    if (cit == vals[vit]) {
+                        counts[vit] += 1;
                         goto o_loop_next;
                     }
                 }
-                vals.push_back(cit);
-                counts.push_back(1);
-    o_loop_next: ;
+                vals[insert_pos] = cit;
+                counts[insert_pos] = 1;
+                ++insert_pos;
+            o_loop_next: ;
             }
 
-            // Terminate early if there is full agreement
-            if (vals.size() == 1)
+            if (vals.size() == 1) // Terminate early on full agreement
                 { goto done; }
 
-            for (auto count_it = counts.begin(); count_it != counts.end();
-                                                 ++count_it) {
-                if (*count_it == c.size()) {
-                    goto done;
-                }
-                else if (*count_it > FT) {
+            for (size_t count_it = 0; count_it != insert_pos; ++count_it) {
+                if (counts[count_it] > FT) {
                     for (auto &cit : c) {
-                        cit = vals[count_it - counts.begin()];
+                        cit = vals[count_it];
                     }
                     goto done;
                 }
             }
 
-            rv = false;
-            // Fuck it
             throw std::runtime_error("no consensus found");
         }
 done:
         return rv;
     }
 };
-#undef constif
 #endif

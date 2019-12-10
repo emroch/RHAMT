@@ -15,7 +15,7 @@
 
 std::jmp_buf env;
 [[noreturn]] void sigsegv_handler(int signal) {
-    if (signal == SIGSEGV) {
+    if (SIGSEGV == signal) {
         longjmp(env, 1);
     }
     else {
