@@ -7,9 +7,12 @@
 #include <unordered_map>
 #include <string>
 
-#define FAIL(msg)   printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg); return false;
+#define FAIL(msg)  {                                            \
+    printf("ERROR: %s, %d: %s\n", __FILE__, __LINE__, msg);     \
+    return false;                                               \
+} while (0)
 
-#define FT 2
+#define FT 7
 
 bool unit_test(bool (*f)(void), std::string name) {
     printf("\033[39;1;4mRunning\033[0m \033[96;1;1m%s\033[0m...\n",
@@ -30,7 +33,7 @@ bool test_random_sparse()
     ReliableHAMT<int, int, FT> rhamt;
     int k, v;
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1000000; ++i) {
         k = rand();
         v = rand();
         golden[k] = v;
@@ -134,32 +137,33 @@ bool test_random_sparse()
 //     return true;
 // }
 // 
-// bool test_random_dense()
-// {
-//     ReliableHAMT<int, int, FT,  uint8_t> rhamt;
-//     std::unordered_map<int, int> golden;
-// 
-//     for (int i = 0; i < 100000; ++i) {
-//         int k = rand();
-//         int v = rand();
-//         golden[k] = v;
-//         rhamt.insert(k, v);
-//     }
-// 
-//     for (auto it : golden) {
-//         const int * rv = rhamt.read(it.first);
-//         if (nullptr == rv) {
-//             FAIL("unexpected nullptr");
-//         }
-//         if (*rv != it.second) {
-//             printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
-//                     __FILE__, __LINE__, it.first, it.second, it.first, *rv);
-//             return false;
-//         }
-//     }
-//     return true;
-// }
-// 
+
+ bool test_random_dense()
+ {
+     ReliableHAMT<uint8_t, uint8_t, FT,  uint32_t> rhamt;
+     std::unordered_map<uint8_t, uint8_t> golden;
+ 
+     for (int i = 0; i < 1000000; ++i) {
+         int k = rand();
+         int v = rand();
+         golden[k] = v;
+         rhamt.insert(k, v);
+     }
+ 
+     for (auto it : golden) {
+         const uint8_t * rv = rhamt.read(it.first);
+         if (nullptr == rv) {
+             FAIL("unexpected nullptr");
+         }
+         if (*rv != it.second) {
+             printf("ERROR: %s %d: Expected (%d, %d) but found (%d, %d)\n",
+                     __FILE__, __LINE__, it.first, it.second, it.first, *rv);
+             return false;
+         }
+     }
+     return true;
+ }
+ 
 // bool test_string_key()
 // {
 //     ReliableHAMT<std::string, int, FT> hamt;
@@ -233,9 +237,9 @@ int main(void)
     srand(time(NULL));
 
     // unit_test(test_small_rhamt, "test_small_rhamt");
-    unit_test(test_random_sparse, "test_random_sparse");
+    // unit_test(test_random_sparse, "test_random_sparse");
     // unit_test(test_overwrite, "test_overwrite");
-    // unit_test(test_random_dense, "test_random_dense");
+    unit_test(test_random_dense, "test_random_dense");
     // unit_test(test_string_key, "test_string_key");
     // unit_test(test_missing_read, "test_missing_read");
     // unit_test(test_missing_remove, "test_missing_remove");

@@ -15,8 +15,6 @@
 
 std::jmp_buf env;
 [[noreturn]] void sigsegv_handler(int signal) {
-    // printf("in handler\n");
-    // fflush(stdout);
     if (signal == SIGSEGV) {
         longjmp(env, 1);
     }
@@ -328,8 +326,6 @@ SplitNode::safe_traverse(const HashType & hash, const Key & key, omtr val,
 {
     int child_idx = getChild(hash, depth);
     childvoter(children[child_idx]);
-    // printf("Safe Traverse: depth %d\n", depth);
-    // fflush(stdout);
     if (nullptr == children[child_idx][0]) {
         RHAMT::Node * newnode;
         if (depth == (maxdepth-1))
@@ -369,31 +365,25 @@ SplitNode::fast_traverse(const HashType & hash, const Key & key, omtr val,
                          size_t * ccount)
 {
     const T * retval;
-    // static int count = 0;
-    // struct sigaction sabuf;
     static struct sigaction sa = {sigsegv_handler, NULL, 0, 0, NULL};
     sa.sa_flags = SA_NODEFER | SA_RESETHAND;
-    // printf("Fast Traverse: depth %d\n", depth);
-    // std::cout << hash << " " << key << " " << root << std::endl;
-    // fflush(stdout);
     if (depth == 0) {
         // Turn On Signal Handler
         if (0 != sigaction(SIGSEGV, &sa, NULL)) {
             perror("sigaction");
             exit(1);
         }
-        // signal(SIGSEGV, sigsegv_handler);
-        // printf("count: %d\n", count++);
-        // fflush(stdout);
+
         if (setjmp(env) > 0) {
-            // printf("calling safe traverse\n");
-            // fflush(stdout);
             return root->safe_traverse(hash, key, val, op, 0, root, ccount);
         }
     }
 
     retval = children[getChild(hash, depth)][0]->fast_traverse(
                                     hash, key, val, op, depth+1, root, ccount);
+
+    // Reset Signal Handler
+    signal(SIGSEGV, SIG_DFL);
     return retval;
 }
 
