@@ -3,15 +3,16 @@
 
 #include "rhamt.hpp"
 
-template<class Key, class T, unsigned FT = 0, class HashType = uint32_t,
-         class Hash = std::hash<Key>, class Pred = std::equal_to<Key>,
-         class Alloc = std::allocator<std::pair<const Key, T>>>
+template<class Key, class T, unsigned FT, class HashType,
+         class Hash, class Pred, class Alloc>
 class Injector {
     using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
-    using Node = RHAMT::Node;
-    using SN = RHAMT::SplitNode;
-    using LN = RHAMT::LeafNode;
+    using Node = typename RHAMT::Node;
+    using SN = typename RHAMT::SplitNode;
+    using LN = typename RHAMT::LeafNode;
 
+public:
+    RHAMT rhamt;
     // Traverse to `depth` along path given by `hash` and swap the `first`
     // and `second` child pointers (only the first duplicate) to test
     // fast_traverse's ability to detect incorrect leaf node
@@ -41,7 +42,8 @@ class Injector {
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
-Injector::swap_children_local(const HashType hash, const int depth,
+Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
+swap_children_local(const HashType hash, const int depth,
                               const unsigned first, const unsigned second)
 {
     (void)hash;
@@ -53,7 +55,8 @@ Injector::swap_children_local(const HashType hash, const int depth,
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
-Injector::swap_children_other(const HashType hash1, const int depth1,
+Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
+swap_children_other(const HashType hash1, const int depth1,
                               const HashType hash2, const int depth2,
                               const unsigned child)
 {
@@ -67,7 +70,8 @@ Injector::swap_children_other(const HashType hash1, const int depth1,
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
-Injector::set_child(const HashType hash, const int depth, unsigned child,
+Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
+set_child(const HashType hash, const int depth, unsigned child,
                     std::optional<uintptr_t> val, unsigned count)
 {
     (void)hash;
@@ -80,7 +84,8 @@ Injector::set_child(const HashType hash, const int depth, unsigned child,
 
 template <class Key, class T, unsigned FT, class HashType, class Hash, class Pred, class Alloc>
 void
-Injector::set_hash(const HashType hash, std::optional<HashType> val,
+Injector<Key, T, FT, HashType, Hash, Pred, Alloc>::
+set_hash(const HashType hash, std::optional<HashType> val,
                    unsigned count)
 {
     (void)hash;

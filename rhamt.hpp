@@ -14,6 +14,9 @@
 #include <cassert>
 #include <iostream>
 
+template<class Key, class T, unsigned FT = 0, class HashType = uint32_t,
+         class Hash = std::hash<Key>, class Pred = std::equal_to<Key>,
+         class Alloc = std::allocator<std::pair<const Key, T>>>
 class Injector;
 
 std::jmp_buf env;
