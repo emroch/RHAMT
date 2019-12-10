@@ -1,7 +1,6 @@
 #ifndef _RHAMT_HPP
 #define _RHAMT_HPP
 #include "voter.hpp"
-// #include "injector.hpp"
 #include <array>
 #include <vector>
 #include <list>
@@ -108,7 +107,7 @@ protected:
     };
 
     class SplitNode : public ReliableHAMT::Node {
-    private:
+    public:
         /* Avoid typing long gross template type multiple times */
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
         using optype = typename RHAMT::Node::optype;
@@ -144,7 +143,7 @@ protected:
     };
 
     class LeafNode : public ReliableHAMT::Node {
-    private:
+    public:
         /* Avoid typing long gross template type multiple times */
         using RHAMT = ReliableHAMT<Key, T, FT, HashType, Hash, Pred, Alloc>;
         using optype = typename RHAMT::Node::optype;
