@@ -5,8 +5,9 @@ as all other member functions are deprecated as of C++20.
 
 ## Error Model
 
+Faulty-RAM error model
+
 ### Safety
 
 We consider instruction memory, as well as "voting" memory to be hardware
-fault-tolerant.  Also, we consider the counts to be fault tolerant because
-we don't really want to deal with all that.
+fault-tolerant.
